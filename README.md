@@ -1,2 +1,11 @@
 # FBR-Tax-Portal-
-FBR Tax Portal – Java OOP Project . This project is a simulation of the Federal Board of Revenue (FBR) tax portal developed using Java and JavaFX.
+overview
+The FBR Tax Portal is a complete tax management application built using Java (OOP) and JavaFX for graphical user interfaces.
+The system allows users to register, log in, calculate various types of taxes, and view detailed reports all through a clean and interactive dashboard.
+It demonstrates key OOP principles including:
+Encapsulation
+Inheritance
+Polymorphism
+Abstraction
+Modular class structure
+File handling for data persistence
