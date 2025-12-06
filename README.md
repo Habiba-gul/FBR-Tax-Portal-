@@ -9,3 +9,14 @@ Polymorphism
 Abstraction
 Modular class structure
 File handling for data persistence
+
+PROJECT OUTLINES
+1. Dashboard (Home Screen)
+ A modern JavaFX-based dashboard with:
+ Login
+ Sign Up
+ Tax Calculator
+ Reports
+ About Portal
+ Exit Application
+2. User Authentication System
