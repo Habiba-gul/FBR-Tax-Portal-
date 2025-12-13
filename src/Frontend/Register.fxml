@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/21" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="Frontend.RegisterController"
+            style="-fx-background-color: linear-gradient(to bottom right, #004e92, #000428);">
+
+    <children>
+        <VBox alignment="CENTER" prefHeight="600.0" prefWidth="450.0" spacing="12.0" 
+              style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 40;" 
+              AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="175.0" AnchorPane.rightAnchor="175.0" AnchorPane.topAnchor="20.0">
+            
+            <effect>
+                <DropShadow color="#00000040" radius="15" spread="0.2" />
+            </effect>
+
+            <children>
+                <ImageView fitHeight="80.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@fbrLogo.png" />
+                    </image>
+                </ImageView>
+
+                <Label text="New Account Registration" textFill="#004e92">
+                    <font>
+                        <Font name="Arial Bold" size="20.0" />
+                    </font>
+                </Label>
+                
+                <Label text="Please fill in your details below" textFill="#7a7a7a">
+                    <font>
+                        <Font name="Arial" size="13.0" />
+                    </font>
+                    <VBox.margin>
+                        <Insets bottom="5.0" top="-5.0" />
+                    </VBox.margin>
+                </Label>
+
+                <VBox spacing="10.0">
+                    <children>
+                        <TextField fx:id="cnicField" promptText="CNIC / Registration No" style="-fx-background-color: #f0f2f5; -fx-border-color: #d1d1d1; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10;" />
+                        <TextField fx:id="nameField" promptText="Full Name" style="-fx-background-color: #f0f2f5; -fx-border-color: #d1d1d1; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10;" />
+                        <TextField fx:id="serviceProviderField" promptText="Current Service Provider" style="-fx-background-color: #f0f2f5; -fx-border-color: #d1d1d1; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10;" />
+                        <TextField fx:id="cellNumberField" promptText="Cell Number (e.g., 03XX-XXXXXXX)" style="-fx-background-color: #f0f2f5; -fx-border-color: #d1d1d1; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10;" />
+                        <TextField fx:id="emailField" promptText="Email Address" style="-fx-background-color: #f0f2f5; -fx-border-color: #d1d1d1; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10;" />
+                        <PasswordField fx:id="passwordField" promptText="Password" style="-fx-background-color: #f0f2f5; -fx-border-color: #d1d1d1; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10;" />
+                        <PasswordField fx:id="confirmPasswordField" promptText="Confirm Password" style="-fx-background-color: #f0f2f5; -fx-border-color: #d1d1d1; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10;" />
+                    </children>
+                    <VBox.margin>
+                        <Insets top="5.0" />
+                    </VBox.margin>
+                </VBox>
+
+                <Button fx:id="registerButton" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleRegistration" text="Complete Registration" textFill="WHITE" 
+                        style="-fx-background-color: #4CAF50; -fx-background-radius: 5; -fx-font-weight: bold; -fx-cursor: hand;">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                    <padding>
+                        <Insets bottom="10.0" top="10.0" />
+                    </padding>
+                </Button>
+
+                <HBox alignment="CENTER" spacing="5.0">
+                    <Label text="Already have an account?" textFill="#7a7a7a" />
+                    <Button fx:id="backToLoginButton" text="Sign In" onAction="#handleBackToLogin" style="-fx-background-color: transparent; -fx-text-fill: #004e92; -fx-font-weight: bold; -fx-cursor: hand;" />
+                </HBox>
+
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>
