@@ -16,7 +16,7 @@
 <BorderPane xmlns="http://javafx.com/javafx/21" 
             xmlns:fx="http://javafx.com/fxml/1" 
             fx:controller="Frontend.UserDashboardController"
-            style="-fx-background-color: #f4f6f9;">
+            style="-fx-background-color: #b8b2d8ff;">
 
     <top>
         <HBox alignment="CENTER_LEFT" prefHeight="60.0" style="-fx-background-color: #004e92; -fx-padding: 10;">
@@ -58,7 +58,7 @@
                 </font>
             </Label>
             
-            <GridPane alignment="CENTER" hgap="40.0" vgap="40.0" style="-fx-background-color: white; -fx-padding: 50; -fx-background-radius: 10;">
+            <GridPane alignment="CENTER" hgap="40.0" vgap="40.0" style="-fx-background-color: #0f5c9eff; -fx-padding: 50; -fx-background-radius: 10;">
                 <columnConstraints>
                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="250.0" />
                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="250.0" />
@@ -70,58 +70,58 @@
                     <RowConstraints minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES" />
                 </rowConstraints>
                 
-                <VBox style="-fx-background-color: #f7f7f7; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" onMouseClicked="#handleUserInfo" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" onMouseClicked="#handleUserInfo" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="0">
                     <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
-                        <image><Image url="@icons/user-info.png" /></image>
+                        <image><Image url="@user-info.png" /></image>
                     </ImageView>
                     <Label text="User Info &amp; Status" style="-fx-font-weight: bold; -fx-text-fill: #333333;"><VBox.margin><Insets top="10.0" /></VBox.margin></Label>
                 </VBox>
                 
-                <VBox style="-fx-background-color: #f7f7f7; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" onMouseClicked="#handleCurrentTaxRecords" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                <VBox style="-fx-background-color:  #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" onMouseClicked="#handleCurrentTaxRecords" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="0">
                     <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
-                        <image><Image url="@icons/tax-records.png" /></image>
+                        <image><Image url="@tax-records.png" /></image>
                     </ImageView>
                     <Label text="Current Tax Records" style="-fx-font-weight: bold; -fx-text-fill: #333333;"><VBox.margin><Insets top="10.0" /></VBox.margin></Label>
                 </VBox>
 
-                <VBox style="-fx-background-color: #f7f7f7; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" onMouseClicked="#handleTaxCalculationServices" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" onMouseClicked="#handleTaxCalculationServices" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="1">
                     <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
-                        <image><Image url="@icons/calculator.png" /></image>
+                        <image><Image url="@calculator.png" /></image>
                     </ImageView>
                     <Label text="Tax Calculation Services" style="-fx-font-weight: bold; -fx-text-fill: #333333;"><VBox.margin><Insets top="10.0" /></VBox.margin></Label>
                 </VBox>
 
-                <VBox style="-fx-background-color: #f7f7f7; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" onMouseClicked="#handlePaymentAndTransaction" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                <VBox style="-fx-background-color:  #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" onMouseClicked="#handlePaymentAndTransaction" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
                     <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
-                        <image><Image url="@icons/payment.png" /></image>
+                        <image><Image url="@payment.png" /></image>
                     </ImageView>
                     <Label text="Payment &amp; Transaction" style="-fx-font-weight: bold; -fx-text-fill: #333333;"><VBox.margin><Insets top="10.0" /></VBox.margin></Label>
                 </VBox>
 
-                <VBox style="-fx-background-color: #f7f7f7; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" onMouseClicked="#handleHistoryAndRecords" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" onMouseClicked="#handleHistoryAndRecords" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="2">
                     <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
-                        <image><Image url="@icons/history.png" /></image>
+                        <image><Image url="@history.png" /></image>
                     </ImageView>
                     <Label text="History &amp; Records Retrieval" style="-fx-font-weight: bold; -fx-text-fill: #333333;"><VBox.margin><Insets top="10.0" /></VBox.margin></Label>
                 </VBox>
 
-                <VBox style="-fx-background-color: #f7f7f7; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" onMouseClicked="#handleAlertsAndNotifications" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                <VBox style="-fx-background-color:  #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" onMouseClicked="#handleAlertsAndNotifications" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2">
                     <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
-                        <image><Image url="@icons/alerts.png" /></image>
+                        <image><Image url="@alerts.png" /></image>
                     </ImageView>
                     <Label text="Alerts &amp; Notification" style="-fx-font-weight: bold; -fx-text-fill: #333333;"><VBox.margin><Insets top="10.0" /></VBox.margin></Label>
                 </VBox>
                 
-                <VBox style="-fx-background-color: #f7f7f7; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" onMouseClicked="#handleReportReadyData" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" onMouseClicked="#handleReportReadyData" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="3">
                     <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
-                        <image><Image url="@icons/report.png" /></image>
+                        <image><Image url="@report.png" /></image>
                     </ImageView>
                     <Label text="Report-Ready Data" style="-fx-font-weight: bold; -fx-text-fill: #333333;"><VBox.margin><Insets top="10.0" /></VBox.margin></Label>
                 </VBox>
                 
-                <VBox style="-fx-background-color: #f7f7f7; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" onMouseClicked="#handleLogout" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                <VBox style="-fx-background-color:  #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" onMouseClicked="#handleLogout" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="3">
                     <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
-                        <image><Image url="@icons/logout.png" /></image>
+                        <image><Image url="@logout.png" /></image>
                     </ImageView>
                     <Label text="Logout" style="-fx-font-weight: bold; -fx-text-fill: #333333;"><VBox.margin><Insets top="10.0" /></VBox.margin></Label>
                 </VBox>
