@@ -13,74 +13,50 @@ import java.io.IOException;
 
 public class UserDashboardController {
 
-    // --- Dashboard Function Handlers (Called by VBox onClicked) ---
+    // --- Dashboard Function Handlers ---
 
     @FXML
     private void handleUserInfo(MouseEvent event) {
-        System.out.println("Navigating to User Information and Status screen...");
-    }
-
-    @FXML
-    private void handleCurrentTaxRecords(MouseEvent event) {
-        System.out.println("Navigating to Current Tax Records screen...");
+        // Navigating to the User Information screen we just discussed
+        switchScene(event, "UserInfo.fxml", "FBR Tax Portal - User Information", 800, 600);
     }
 
     @FXML
     private void handleTaxCalculationServices(MouseEvent event) {
-        System.out.println("Navigating to Tax Calculation Services Hub (Income Tax)...");
+        // Navigating to the Income Tax Form
+        switchScene(event, "IncomeTaxForm.fxml", "FBR Tax Portal - Income Tax Form", 1000, 750);
+    }
+
+    /**
+     * Helper method to reduce code repetition when switching scenes.
+     */
+    private void switchScene(MouseEvent event, String fxmlFile, String title, int width, int height) {
         try {
-            // 1. Load the FXML file for the Income Tax Form
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("IncomeTaxForm.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Parent root = loader.load();
 
-            // 2. Get the current Stage (window) from the click event
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root, width, height); 
             
-            // 3. Create a new Scene (Larger size for the form)
-            Scene scene = new Scene(root, 1000, 750); 
-            
-            // 4. Set the new Scene
             stage.setScene(scene);
-            stage.setTitle("FBR Tax Portal - Income Tax Form");
+            stage.setTitle(title);
             stage.show();
             
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Failed to load IncomeTaxForm.fxml");
+            System.err.println("Failed to load " + fxmlFile);
         }
-    }
-
-    @FXML
-    private void handlePaymentAndTransaction(MouseEvent event) {
-        System.out.println("Navigating to Payment and Transaction screen...");
-    }
-
-    @FXML
-    private void handleHistoryAndRecords(MouseEvent event) {
-        System.out.println("Navigating to History and Records Retrieval screen...");
-    }
-
-    @FXML
-    private void handleAlertsAndNotifications(MouseEvent event) {
-        System.out.println("Navigating to Alerts and Notification screen...");
-    }
-
-    @FXML
-    private void handleReportReadyData(MouseEvent event) {
-        System.out.println("Navigating to Report Ready Data screen...");
     }
 
     // --- Logout Functionality ---
 
     @FXML
     private void handleLogout(ActionEvent event) {
-        // Called by the header button
         returnToLogin((Node) event.getSource());
     }
 
     @FXML
     private void handleLogout(MouseEvent event) {
-        // Called by the VBox grid item
         returnToLogin((Node) event.getSource());
     }
 
@@ -90,7 +66,6 @@ public class UserDashboardController {
             Parent root = loader.load();
 
             Stage stage = (Stage) sourceNode.getScene().getWindow();
-            // Revert back to the original login size
             Scene scene = new Scene(root, 800, 600); 
             
             stage.setScene(scene);
@@ -102,4 +77,11 @@ public class UserDashboardController {
             System.err.println("Failed to load Login.fxml during logout.");
         }
     }
+
+    // Placeholder handlers for remaining features
+    @FXML private void handleCurrentTaxRecords(MouseEvent event) { System.out.println("Current Tax Records Clicked"); }
+    @FXML private void handlePaymentAndTransaction(MouseEvent event) { System.out.println("Payments Clicked"); }
+    @FXML private void handleHistoryAndRecords(MouseEvent event) { System.out.println("History Clicked"); }
+    @FXML private void handleAlertsAndNotifications(MouseEvent event) { System.out.println("Alerts Clicked"); }
+    @FXML private void handleReportReadyData(MouseEvent event) { System.out.println("Reports Clicked"); }
 }

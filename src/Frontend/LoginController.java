@@ -1,5 +1,6 @@
 package Frontend;
 
+import Backend.AppLoginService; // Our new service
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,79 +11,63 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 
 public class LoginController {
 
-    @FXML
-    private TextField usernameField;
-    @FXML
-    private PasswordField passwordField;
+    @FXML private TextField usernameField;
+    @FXML private PasswordField passwordField;
+
+    private AppLoginService loginService = new AppLoginService();
 
     @FXML
     private void handleLogin(ActionEvent event) {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
-        
-        // --- DEBUG PRINT (Keep this for now!) ---
-        System.out.println("DEBUG: Username entered: [" + username + "], Password entered: [" + password + "]"); 
-        // -----------------------------------------
+        String username = usernameField.getText().trim();
+        String password = passwordField.getText().trim();
 
-        // TEMPORARY BYPASS: Check for "user" and "pass"
-        boolean loginSuccessful = (username.trim().equals("user") && password.trim().equals("pass"));
+        String role = loginService.validateLogin(username, password);
 
-        if (loginSuccessful) {
-            System.out.println("Login successful (TEMPORARY BYPASS). Navigating to Dashboard.");
-            
-            try {
-                // 1. Load the User Dashboard FXML file
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("UserDashboard.fxml"));
-                Parent root = loader.load();
-
-                // 2. Get the current Stage from the event source
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                
-                // 3. Create new Scene and switch
-                Scene scene = new Scene(root, stage.getWidth(), stage.getHeight()); 
-                
-                stage.setScene(scene);
-                stage.setTitle("FBR Tax Application - Dashboard");
-                stage.show();
-                
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.err.println("Failed to load UserDashboard.fxml");
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Load Error");
-                alert.setHeaderText(null);
-                alert.setContentText("Could not load the User Dashboard interface.");
-                alert.showAndWait();
-            }
+        if (role.equals("ADMIN")) {
+            navigateTo(event, "AdminDashboard.fxml", "FBR Admin Portal", 1100, 750);
+        } else if (role.equals("USER")) {
+            navigateTo(event, "UserDashboard.fxml", "FBR Taxpayer Portal", 800, 600);
         } else {
-            // Show Alert for failed login
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Login Failed");
-            alert.setHeaderText(null);
-            alert.setContentText("Invalid credentials. Try 'user' and 'pass'.");
-            alert.showAndWait();
+            showErrorAlert("Login Failed", "Invalid credentials.");
         }
     }
 
+    /**
+     * This method was missing! It handles the "Register Now" button.
+     */
     @FXML
     private void handleRegister(ActionEvent event) {
+        System.out.println("Navigating to Registration...");
+        navigateTo(event, "Register.fxml", "FBR Tax Application - Register", 800, 600);
+    }
+
+    private void navigateTo(ActionEvent event, String fxmlFile, String title, int width, int height) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("Register.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Parent root = loader.load();
+
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root, stage.getWidth(), stage.getHeight());
-            stage.setScene(scene);
-            stage.setTitle("FBR Tax Application - Register");
-            stage.show();
+            Scene scene = new Scene(root, width, height); 
             
+            stage.setScene(scene);
+            stage.setTitle(title);
+            stage.centerOnScreen();
+            stage.show();
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Failed to load Register.fxml");
+            showErrorAlert("System Error", "Could not load: " + fxmlFile);
         }
+    }
+
+    private void showErrorAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }
