@@ -1,6 +1,5 @@
 package Frontend;
 
-import Backend.AppLoginService; // Our new service
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,8 +9,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import java.io.IOException;
+
+import Backend.AppLoginService;
 
 public class LoginController {
 
@@ -45,14 +47,23 @@ public class LoginController {
         navigateTo(event, "Register.fxml", "FBR Tax Application - Register", 800, 600);
     }
 
-    private void navigateTo(ActionEvent event, String fxmlFile, String title, int width, int height) {
+    private void navigateTo(ActionEvent event, String fxmlFile, String title, int preferredWidth, int preferredHeight) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Parent root = loader.load();
 
+            // Get screen bounds to make the window responsive and fit within 90% of the screen dimensions
+            javafx.geometry.Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
+            double maxWidth = visualBounds.getWidth() * 0.9;
+            double maxHeight = visualBounds.getHeight() * 0.9;
+
+            // Cap the size to prevent exceeding screen limits
+            double sceneWidth = Math.min(preferredWidth, maxWidth);
+            double sceneHeight = Math.min(preferredHeight, maxHeight);
+
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root, width, height); 
-            
+            Scene scene = new Scene(root, sceneWidth, sceneHeight);
+
             stage.setScene(scene);
             stage.setTitle(title);
             stage.centerOnScreen();

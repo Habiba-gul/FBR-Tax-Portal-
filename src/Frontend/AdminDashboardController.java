@@ -1,11 +1,17 @@
 package Frontend;
 
-import Backend.User;
 import Backend.AdminService;
+import Backend.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
+
+import java.io.IOException;
 import java.util.Optional;
 
 public class AdminDashboardController {
@@ -34,6 +40,8 @@ public class AdminDashboardController {
         userTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
                 updateControlPanel(newVal);
+            } else {
+                clearControlPanel();
             }
         });
     }
@@ -42,6 +50,12 @@ public class AdminDashboardController {
         selectedNameLabel.setText("Name: " + user.getName());
         selectedCnicLabel.setText("CNIC: " + user.getCnic());
         selectedStatusLabel.setText("Status: " + user.getStatus());
+    }
+
+    private void clearControlPanel() {
+        selectedNameLabel.setText("Name: None Selected");
+        selectedCnicLabel.setText("CNIC: N/A");
+        selectedStatusLabel.setText("Status: N/A");
     }
 
     @FXML
@@ -62,37 +76,83 @@ public class AdminDashboardController {
             selected.setPenalty(0.0);
             userTable.refresh();
             updateControlPanel(selected);
+        } else {
+            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a taxpayer to override.");
         }
     }
 
     @FXML
     private void handlePenalty() {
         User selected = userTable.getSelectionModel().getSelectedItem();
-        if (selected == null) return;
+        if (selected == null) {
+            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a taxpayer to issue penalty.");
+            return;
+        }
 
-        // Create a confirmation pop-up
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirm Penalty");
         alert.setHeaderText("Issue 10% Penalty to " + selected.getName() + "?");
-        alert.setContentText("This action will add " + (selected.getBaseTax() * 0.10) + " to their record.");
+        alert.setContentText("This will add " + (selected.getBaseTax() * 0.10) + " to their penalty.");
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             adminService.applyTenPercentPenalty(selected);
             userTable.refresh();
-            System.out.println("Penalty applied to " + selected.getCnic());
+            updateControlPanel(selected);
         }
     }
 
-    @FXML private void handleSuspend() { 
+    @FXML
+    private void handleSuspend() {
         User selected = userTable.getSelectionModel().getSelectedItem();
         if (selected != null) {
             selected.setStatus("Suspended");
             userTable.refresh();
             updateControlPanel(selected);
+        } else {
+            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a taxpayer to suspend.");
         }
     }
 
-    @FXML private void handleLogout(ActionEvent event) { /* Navigation logic */ }
-    @FXML private void handleTaxSettings() { /* Navigation logic */ }
+    @FXML
+    private void handleTaxSettings() {
+        try {
+            // Relative path — works when TaxRateSettings.fxml is in resources/Frontend/
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("TaxRateSettings.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) userTable.getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.setTitle("FBR Admin - Tax Rate Settings");
+            stage.centerOnScreen();
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not open Tax Rate Settings.\nEnsure TaxRateSettings.fxml is in resources/Frontend/.");
+        }
+    }
+
+    @FXML
+    private void handleLogout(ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("Login.fxml"));
+            Stage stage = (Stage) userTable.getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.setTitle("FBR Tax Application - Login");
+            stage.centerOnScreen();
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
 }
