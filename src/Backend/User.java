@@ -1,5 +1,7 @@
 package Backend;
 
+import java.time.LocalDate;
+
 /**
  * The User class represents a taxpayer in the system.
  * It follows the JavaBeans naming convention so that JavaFX 
@@ -51,5 +53,60 @@ public class User {
 
     public void setPenalty(double penalty) {
         this.penalty = penalty;
+    }
+
+    public String getGender() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getGender'");
+    }
+
+    public LocalDate getDob() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getDob'");
+    }
+
+    public String getEmail() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getEmail'");
+    }
+
+    public String getAddress() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAddress'");
+    }
+
+    public String getPhone() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getPhone'");
+    }
+
+    public void setName(String text) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setName'");
+    }
+
+    public void setDob(LocalDate value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setDob'");
+    }
+
+    public void setGender(String value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setGender'");
+    }
+
+    public void setAddress(String text) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setAddress'");
+    }
+
+    public void setEmail(String text) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setEmail'");
+    }
+
+    public void setPhone(String text) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setPhone'");
     }
 }

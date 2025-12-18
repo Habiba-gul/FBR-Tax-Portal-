@@ -1,5 +1,9 @@
 package Frontend;
 
+import Backend.AppLoginService;
+import Backend.SystemManager;
+import Backend.UserDAO;
+import Backend.UserInfo;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -9,76 +13,78 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
-import java.io.IOException;
 
-import Backend.AppLoginService;
+import java.io.IOException;
 
 public class LoginController {
 
-    @FXML private TextField usernameField;
+    @FXML private TextField usernameField;      // This is CNIC / Registration No
     @FXML private PasswordField passwordField;
 
-    private AppLoginService loginService = new AppLoginService();
+    private final AppLoginService loginService = new AppLoginService();
 
     @FXML
     private void handleLogin(ActionEvent event) {
-        String username = usernameField.getText().trim();
+        String cnic = usernameField.getText().trim();
         String password = passwordField.getText().trim();
 
-        String role = loginService.validateLogin(username, password);
+        if (cnic.isEmpty() || password.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Empty Fields", "Please enter CNIC and Password.");
+            return;
+        }
 
-        if (role.equals("ADMIN")) {
-            navigateTo(event, "AdminDashboard.fxml", "FBR Admin Portal", 1100, 750);
-        } else if (role.equals("USER")) {
-            navigateTo(event, "UserDashboard.fxml", "FBR Taxpayer Portal", 800, 600);
+        String role = loginService.validateLogin(cnic, password);
+
+        if ("USER".equals(role)) {
+            // Load full user details from database
+            UserInfo currentUser = UserDAO.getUserByCNIC(cnic);
+            if (currentUser != null) {
+                SystemManager.setCurrentUser(currentUser);  // Critical: Makes CNIC show in User Info
+            }
+
+            navigateTo(event, "UserDashboard.fxml", "FBR Taxpayer Portal");
+
+        } else if ("ADMIN".equals(role)) {
+            // For admin (you can load admin details if needed later)
+            navigateTo(event, "AdminDashboard.fxml", "FBR Admin Portal");
+
         } else {
-            showErrorAlert("Login Failed", "Invalid credentials.");
+            showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid CNIC or Password.");
         }
     }
 
-    /**
-     * This method was missing! It handles the "Register Now" button.
-     */
     @FXML
     private void handleRegister(ActionEvent event) {
-        System.out.println("Navigating to Registration...");
-        navigateTo(event, "Register.fxml", "FBR Tax Application - Register", 800, 600);
+        navigateTo(event, "Register.fxml", "FBR Tax Portal - Register");
     }
 
-    private void navigateTo(ActionEvent event, String fxmlFile, String title, int preferredWidth, int preferredHeight) {
+    // Helper method to switch screens
+    private void navigateTo(ActionEvent event, String fxmlFile, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Parent root = loader.load();
 
-            // Get screen bounds to make the window responsive and fit within 90% of the screen dimensions
-            javafx.geometry.Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
-            double maxWidth = visualBounds.getWidth() * 0.9;
-            double maxHeight = visualBounds.getHeight() * 0.9;
-
-            // Cap the size to prevent exceeding screen limits
-            double sceneWidth = Math.min(preferredWidth, maxWidth);
-            double sceneHeight = Math.min(preferredHeight, maxHeight);
-
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root, sceneWidth, sceneHeight);
-
+            Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.setTitle(title);
             stage.centerOnScreen();
+            stage.setResizable(true);
             stage.show();
+
         } catch (IOException e) {
             e.printStackTrace();
-            showErrorAlert("System Error", "Could not load: " + fxmlFile);
+            showAlert(Alert.AlertType.ERROR, "Error", "Cannot load " + fxmlFile + ". Please check the file.");
         }
     }
 
-    private void showErrorAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
+    // Helper method for alerts
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(null);
-        alert.setContentText(content);
+        alert.setContentText(message);
         alert.showAndWait();
     }
 }

@@ -1,22 +1,20 @@
 package Frontend;
 
+import Backend.UserDAO;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
-
-import java.io.IOException;
 
 public class RegisterController {
 
-    @FXML private TextField nameField;
+    // Ye sab fields ke naam exactly fxml ke fx:id se match karne chahiye
     @FXML private TextField cnicField;
+    @FXML private TextField nameField;
     @FXML private TextField serviceProviderField;
     @FXML private TextField cellNumberField;
     @FXML private TextField emailField;
@@ -25,52 +23,62 @@ public class RegisterController {
 
     @FXML
     private void handleRegistration(ActionEvent event) {
-        String cnic = cnicField.getText();
-        String password = passwordField.getText();
-        String confirmPassword = confirmPasswordField.getText();
+        // Get values
+        String cnic = cnicField.getText().trim();
+        String name = nameField.getText().trim();
+        String service = serviceProviderField.getText().trim();
+        String phone = cellNumberField.getText().trim();
+        String email = emailField.getText().trim();
+        String pass = passwordField.getText();
+        String confirm = confirmPasswordField.getText();
 
-        // 1. Basic Validation (Password Check)
-        if (password.isEmpty() || !password.equals(confirmPassword)) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Registration Error");
-            alert.setHeaderText(null);
-            alert.setContentText("Passwords do not match or are empty.");
-            alert.showAndWait();
+        // Basic validation
+        if (cnic.isEmpty() || name.isEmpty() || phone.isEmpty() || email.isEmpty() || pass.isEmpty()) {
+            showAlert("Error", "All fields are required!");
+            return;
+        }
+        if (!pass.equals(confirm)) {
+            showAlert("Error", "Passwords do not match!");
             return;
         }
 
-        // --- TEMPORARY SUCCESS SIMULATION ---
-        System.out.println("Attempting registration for CNIC: " + cnic);
         
-        // Assume success for interface testing:
-        Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-        successAlert.setTitle("Success");
-        successAlert.setHeaderText(null);
-        successAlert.setContentText("Registration successful! You may now log in.");
-        successAlert.showAndWait();
+        // Save to database
+        boolean success = UserDAO.registerUser(name, cnic, email, phone, pass);
+
+        if (success) {
+            showAlert("Success!", "Registration completed!\nYou can now login with your CNIC and password.");
+            goToLogin(event);  // Back to login screen
+        } else {
+            showAlert("Failed", "Registration failed!\nCNIC may already exist or database error.");
+        }
         
-        // 2. Go back to login screen after successful registration
-        handleBackToLogin(event);
     }
 
     @FXML
     private void handleBackToLogin(ActionEvent event) {
-        try {
-            // Load the Login FXML
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("Login.fxml"));
-            Parent root = loader.load();
+        goToLogin(event);
+    }
 
-            // Get the current Stage and switch Scene
+    private void goToLogin(ActionEvent event) {
+        try {
+            Parent loginPage = FXMLLoader.load(getClass().getResource("Login.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root, stage.getWidth(), stage.getHeight());
-            
-            stage.setScene(scene);
-            stage.setTitle("FBR Tax Application - Login");
+            stage.setScene(new Scene(loginPage));
+            stage.setTitle("FBR Tax Portal - Login");
+            stage.centerOnScreen();
             stage.show();
-            
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("Failed to load Login.fxml");
+            showAlert("Error", "Cannot go back to login.");
         }
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

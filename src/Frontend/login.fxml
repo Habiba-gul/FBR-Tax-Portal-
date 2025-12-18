@@ -7,7 +7,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.effect.DropShadow?>
 
-<HBox alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" 
+<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" 
       fx:controller="Frontend.LoginController"
       style="-fx-background-color: linear-gradient(to bottom right, #004e92, #000428);">
 
@@ -60,4 +60,4 @@
 
         <Region prefWidth="280.0" /> 
     </children>
-</HBox>
+</VBox>

@@ -1,49 +1,54 @@
 package Frontend;
 
+import Backend.SystemManager;
+import Backend.UserDAO;
+import Backend.UserInfo;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.stage.Stage;
-import java.io.IOException;
+import javafx.scene.control.*;
 
 public class UserInfoController {
 
-    @FXML private TextField nameField, cnicField, emailField, phoneField;
-    @FXML private Label statusLabel;
+    @FXML private TextField nameField, cnicField, addressField, emailField, phoneField;
+    @FXML private DatePicker dobPicker;
+    @FXML private ComboBox<String> genderBox;
+
+    private UserInfo user;
 
     @FXML
     public void initialize() {
-        // In the future, you will call Person A's backend here:
-        // User currentUser = SystemManager.getCurrentUser();
-        // nameField.setText(currentUser.getName());
-        
-        // TEMPORARY MOCK DATA for testing:
-        nameField.setText("John Doe");
-        cnicField.setText("42101-1234567-1");
-        emailField.setText("john.doe@example.com");
-        phoneField.setText("0300-1234567");
+        genderBox.getItems().addAll("Male", "Female", "Other");
+
+        user = SystemManager.getCurrentUser();
+
+        if (user != null) {
+            nameField.setText(user.getName());
+            cnicField.setText(user.getCnic());
+            dobPicker.setValue(user.getDob());
+            genderBox.setValue(user.getGender());
+            addressField.setText(user.getAddress());
+            emailField.setText(user.getEmail());
+            phoneField.setText(user.getPhone());
+        }
     }
 
     @FXML
     private void handleUpdate() {
-        // Logic to send data to Person A's SystemManager
-        System.out.println("Updating database for CNIC: " + cnicField.getText());
-        
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setContentText("Profile Updated Successfully in the Database!");
-        alert.showAndWait();
-    }
+        if (user == null) return;
 
-    @FXML
-    private void handleBack(javafx.event.ActionEvent event) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("UserDashboard.fxml"));
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root, 1000, 750));
-        stage.show();
+        user.setName(nameField.getText());
+        cnicField.setText(user.getCnic());
+        user.setDob(dobPicker.getValue());
+        user.setGender(genderBox.getValue());
+        user.setAddress(addressField.getText());
+        user.setEmail(emailField.getText());
+        user.setPhone(phoneField.getText());
+
+        boolean success = UserDAO.updateUser(user);
+
+        Alert alert = new Alert(success ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
+        alert.setTitle("Update Status");
+        alert.setHeaderText(null);
+        alert.setContentText(success ? "Profile updated successfully!" : "Failed to update profile.");
+        alert.showAndWait();
     }
 }

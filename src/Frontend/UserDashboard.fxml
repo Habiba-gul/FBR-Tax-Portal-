@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.shape.Circle?>
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
@@ -18,10 +19,10 @@
             fx:controller="Frontend.UserDashboardController"
             style="-fx-background-color: #b8b2d8ff;">
 
-    <top>
-        <HBox alignment="CENTER_LEFT" prefHeight="60.0" style="-fx-background-color: #004e92; -fx-padding: 10;">
-            <children>
-                <ImageView fitHeight="40.0" fitWidth="120.0" preserveRatio="true">
+    <!-- <top>
+        <HBox alignment="CENTER_LEFT" spacing="12" prefHeight="60.0" style="-fx-background-color: #004e92; -fx-padding: 10;">
+            <children> -->
+                <!-- <ImageView fitHeight="40.0" fitWidth="120.0" preserveRatio="true">
                     <image>
                         <Image url="@fbrLogo.png" />
                     </image>
@@ -44,7 +45,47 @@
                 </HBox>
             </children>
         </HBox>
-    </top>
+    </top> -->
+    <top>
+    <HBox alignment="CENTER_LEFT"
+          spacing="12"
+          prefHeight="60"
+          style="-fx-background-color: #004e92; -fx-padding: 10;">
+
+        <!-- Logo with circular clip -->
+        <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
+            <image>
+                <Image url="@fbrLogo.png"/>
+            </image>
+            <clip>
+                <Circle radius="20" centerX="20" centerY="20"/>
+            </clip>
+        </ImageView>
+
+        <Label text="Tax Portal" textFill="WHITE">
+            <font>
+                <Font size="20"/>
+            </font>
+        </Label>
+
+        <HBox HBox.hgrow="ALWAYS"/>
+
+        <Button text="Logout"
+                onAction="#handleLogout"
+                style="-fx-background-color: #FFC107;
+                       -fx-text-fill: #004e92;
+                       -fx-font-weight: bold;
+                       -fx-background-radius: 6;
+                       -fx-cursor: hand;">
+            <padding>
+                <Insets left="15" right="15"/>
+            </padding>
+        </Button>
+
+    </HBox>
+</top>
+
+       
 
     <center>
         <VBox alignment="CENTER" spacing="30.0" BorderPane.alignment="CENTER">
@@ -130,3 +171,4 @@
         </VBox>
     </center>
 </BorderPane>
+
