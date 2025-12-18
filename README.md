@@ -1,22 +1,33 @@
-# FBR-Tax-Portal-
-overview
-The FBR Tax Portal is a complete tax management application built using Java (OOP) and JavaFX for graphical user interfaces.
-The system allows users to register, log in, calculate various types of taxes, and view detailed reports all through a clean and interactive dashboard.
-It demonstrates key OOP principles including:
-Encapsulation
-Inheritance
-Polymorphism
-Abstraction
-Modular class structure
-File handling for data persistence
+# FBR Tax Portal - JavaFX OOP Project
 
-PROJECT OUTLINES
-1. Dashboard (Home Screen)
- A modern JavaFX-based dashboard with:
- Login
- Sign Up
- Tax Calculator
- Reports
- About Portal
- Exit Application
-2. User Authentication System
+A desktop-based Taxpayer Portal using **JavaFX** (frontend) and **MySQL** (backend).
+
+## Current Features (Completed)
+
+- **User Registration**: New users can register with CNIC, name, email, phone, and password. Data is saved directly in the database.
+- **User Login**: Registered users can log in using their CNIC and password.
+- **User Info & Status**: Fully functional button and interface to view and update user profile (Name, CNIC, DOB, Gender, Address, Email, Phone).
+- **Database Connectivity**: 
+  - Data entered through registration is stored in the database.
+  - Users manually added in the SQL database can also log in and view their data.
+  - Two-way integration: portal ↔ database.
+
+## Technologies Used
+
+- Java (JDK 25)
+- Scene Bulider
+- JavaFX
+- MySQL
+- MySQL Connector/J
+
+## How to Run
+
+1. Add MySQL Connector JAR to classpath.
+2. Update `DBconnection.java` with your MySQL password (if any).
+3. Run `Frontend.Main`.
+4. Backend
+
+**Project Status: Core features (Registration, Login, User Info & Status with full database integration) completed and working.**
+
+---
+OOP Course Project
