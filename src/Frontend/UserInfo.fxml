@@ -12,37 +12,29 @@
       fx:controller="Frontend.UserInfoController"
       style="-fx-background-color: #f4f4f4;">
 
-    <!-- Header Bar -->
     <HBox style="-fx-background-color: #557cc5ff; -fx-padding: 10; -fx-alignment: TOP_LEFT;">
         <ImageView fitWidth="30" fitHeight="30" preserveRatio="true">
             <image>
-                <Image url="@fbrlogo.png" /> <!-- Place your logo in src/Frontend/images/ -->
+                <Image url="@fbrlogo.png" />
             </image>
         </ImageView>
         <Label text="FBR Tax Portal" 
                style="-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: bold;"
                HBox.hgrow="ALWAYS">
-            <VBox.margin>
+            <padding>
                 <Insets left="15"/>
-            </VBox.margin>
+            </padding>
         </Label>
     </HBox>
 
-    <!-- Main Title -->
-    <Label text="User Profile Management"
-           style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #0d0d0eff;"/>
-    
-    <padding>
-        <Insets top="10" right="40" bottom="30" left="40"/>
-    </padding>
+    <Label text="User Profile Management" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #333;"/>
 
-    <GridPane hgap="15" vgap="12" alignment="CENTER">
+    <GridPane hgap="15" vgap="15" alignment="CENTER">
         <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES"/>
-            <ColumnConstraints hgrow="ALWAYS"/>
+            <ColumnConstraints halignment="RIGHT" prefWidth="120"/>
+            <ColumnConstraints hgrow="SOMETIMES" prefWidth="250"/>
         </columnConstraints>
 
-        <!-- Form Fields -->
         <Label text="Name:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
         <TextField fx:id="nameField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
@@ -50,10 +42,10 @@
         <TextField fx:id="cnicField" editable="false" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
         <Label text="Date of Birth:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-        <DatePicker fx:id="dobPicker" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        <DatePicker fx:id="dobPicker" GridPane.rowIndex="2" GridPane.columnIndex="1" maxWidth="Infinity"/>
 
         <Label text="Gender:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-        <ComboBox fx:id="genderBox" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+        <ComboBox fx:id="genderBox" GridPane.rowIndex="3" GridPane.columnIndex="1" maxWidth="Infinity"/>
 
         <Label text="Address:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
         <TextField fx:id="addressField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
@@ -65,6 +57,15 @@
         <TextField fx:id="phoneField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
     </GridPane>
 
-    <Button text="Update Profile" onAction="#handleUpdate"
-            style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10 30; -fx-background-radius: 8;"/>
+    <HBox spacing="20" alignment="CENTER">
+        <Button text="Update Profile" onAction="#handleUpdate"
+                style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
+        
+        <Button text="Back to Dashboard" onAction="#handleBackToDashboard"
+                style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
+    </HBox>
+    
+    <padding>
+        <Insets bottom="30"/>
+    </padding>
 </VBox>

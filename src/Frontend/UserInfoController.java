@@ -3,8 +3,16 @@ package Frontend;
 import Backend.SystemManager;
 import Backend.UserDAO;
 import Backend.UserInfo;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class UserInfoController {
 
@@ -18,6 +26,7 @@ public class UserInfoController {
     public void initialize() {
         genderBox.getItems().addAll("Male", "Female", "Other");
 
+        // Retrieve the logged-in user's data from our session manager
         user = SystemManager.getCurrentUser();
 
         if (user != null) {
@@ -35,14 +44,15 @@ public class UserInfoController {
     private void handleUpdate() {
         if (user == null) return;
 
+        // Update the user object with the values from the text fields
         user.setName(nameField.getText());
-        cnicField.setText(user.getCnic());
         user.setDob(dobPicker.getValue());
         user.setGender(genderBox.getValue());
         user.setAddress(addressField.getText());
         user.setEmail(emailField.getText());
         user.setPhone(phoneField.getText());
 
+        // Save these changes back to the MySQL database
         boolean success = UserDAO.updateUser(user);
 
         Alert alert = new Alert(success ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
@@ -50,5 +60,28 @@ public class UserInfoController {
         alert.setHeaderText(null);
         alert.setContentText(success ? "Profile updated successfully!" : "Failed to update profile.");
         alert.showAndWait();
+    }
+
+    @FXML
+    private void handleBackToDashboard(ActionEvent event) {
+        try {
+            // Loading the Dashboard view
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("UserDashboard.fxml"));
+            Parent root = loader.load();
+
+            // Getting the current window (Stage) to switch scenes
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            
+            // Standard dashboard size
+            Scene scene = new Scene(root, 800, 600); 
+            
+            stage.setScene(scene);
+            stage.setTitle("FBR Tax Application - Dashboard");
+            stage.show();
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Failed to load UserDashboard.fxml");
+        }
     }
 }
