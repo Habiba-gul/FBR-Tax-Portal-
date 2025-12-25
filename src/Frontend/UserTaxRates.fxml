@@ -6,20 +6,16 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
 
-<VBox xmlns="http://javafx.com/javafx/21"  
+<VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Frontend.UserTaxRatesController"
       spacing="15" alignment="TOP_CENTER"
       style="-fx-padding: 15; -fx-background-color: #f4f4f9;">
 
-    <!-- Header with Back Button -->
+    <!-- Header without "Read Only" text -->
     <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: linear-gradient(to right, #4e54c8, #8f94fb); -fx-padding: 10;">
-        <Label text="Tax Rates (Read Only)"
+        <Label text="Tax Rates"
                style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;" />
-        <!-- Removed Region and replaced with a Label that takes up space -->
-        <Label text="" HBox.hgrow="ALWAYS" />
-        <Button text="← Dashboard" fx:id="backBtn" onAction="#handleBackToDashboard"
-                style="-fx-background-color: white; -fx-text-fill: #4e54c8; -fx-font-weight: bold;" />
     </HBox>
 
     <!-- Table -->
@@ -33,8 +29,9 @@
         </columns>
     </TableView>
 
-    <!-- Footer -->
-    <HBox alignment="CENTER_RIGHT">
-        <Label text="FBR Tax Portal" style="-fx-text-fill: #4e54c8; -fx-font-size: 12px;"/>
+    <!-- Footer with Back to Dashboard button -->
+    <HBox alignment="CENTER">
+        <Button text="← Back to Dashboard" fx:id="backBtn" onAction="#handleBackToDashboard"
+                style="-fx-background-color: #4e54c8; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;" />
     </HBox>
 </VBox>

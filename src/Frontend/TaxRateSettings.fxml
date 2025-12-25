@@ -16,27 +16,52 @@
             <Label text="Tax Rate Settings" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #004e92;"/>
             <Label text="Adjust tax rates as per current fiscal law (values in %)" style="-fx-text-fill: #555;"/>
 
-            <GridPane hgap="20" vgap="15" alignment="CENTER">
-                <columnConstraints>
-                    <ColumnConstraints hgrow="SOMETIMES" prefWidth="300"/>
-                    <ColumnConstraints hgrow="SOMETIMES" prefWidth="150"/>
-                </columnConstraints>
+            <!-- Income Tax Section with Type Selector -->
+            <TitledPane text="Income Tax Rates" expanded="true" collapsible="false">
+                <content>
+                    <VBox spacing="15">
+                        <HBox spacing="15" alignment="CENTER_LEFT">
+                            <Label text="Income Type:" prefWidth="150"/>
+                            <ComboBox fx:id="incomeTypeCombo" prefWidth="200"/>
+                        </HBox>
+                        <GridPane hgap="20" vgap="15" alignment="CENTER">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" prefWidth="300"/>
+                                <ColumnConstraints hgrow="SOMETIMES" prefWidth="150"/>
+                            </columnConstraints>
+                            <Label text="Tax Rate (%):" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            <TextField fx:id="incomeTaxRateField" promptText="e.g. 15.0" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                        </GridPane>
+                    </VBox>
+                </content>
+            </TitledPane>
 
-                <Label text="Salary Income Tax Rate (%):" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                <TextField fx:id="salaryRateField" promptText="e.g. 15.0" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+            <!-- Other Tax Rates -->
+            <TitledPane text="Other Tax Rates" expanded="true" collapsible="false">
+                <content>
+                    <GridPane hgap="20" vgap="15" alignment="CENTER">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" prefWidth="300"/>
+                            <ColumnConstraints hgrow="SOMETIMES" prefWidth="150"/>
+                        </columnConstraints>
 
-                <Label text="Business Income Tax Rate (%):" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                <TextField fx:id="businessRateField" promptText="e.g. 20.0" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        <Label text="Vehicle Tax Rate (%):" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <TextField fx:id="vehicleRateField" promptText="e.g. 10.0" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-                <Label text="Property Rental Income Tax Rate (%):" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                <TextField fx:id="rentalRateField" promptText="e.g. 10.0" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                        <Label text="Residential Property Tax Rate (%):" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <TextField fx:id="residentialRateField" promptText="e.g. 10.0" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-                <Label text="Capital Gains Tax Rate (%):" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                <TextField fx:id="capitalGainsRateField" promptText="e.g. 15.0" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                        <Label text="Commercial Property Tax Rate (%):" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <TextField fx:id="commercialRateField" promptText="e.g. 15.0" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-                <Label text="Late Payment Penalty Rate (%):" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                <TextField fx:id="penaltyRateField" promptText="e.g. 10.0" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-            </GridPane>
+                        <Label text="GST Rate (%):" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <TextField fx:id="gstRateField" promptText="e.g. 17.0" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                        <Label text="Late Payment Penalty Rate (%):" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                        <TextField fx:id="penaltyRateField" promptText="e.g. 10.0" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                    </GridPane>
+                </content>
+            </TitledPane>
 
             <HBox spacing="20" alignment="CENTER">
                 <Button text="Save Changes" onAction="#handleSave"
