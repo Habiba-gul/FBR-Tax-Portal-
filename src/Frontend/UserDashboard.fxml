@@ -122,7 +122,9 @@
                     <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
                         <image><Image url="@tax-records.png" /></image>
                     </ImageView>
-                    <Label text="Current Tax Records" style="-fx-font-weight: bold; -fx-text-fill: #333333;"><VBox.margin><Insets top="10.0" /></VBox.margin></Label>
+                    <Label text="Tax Rates"
+                     style="-fx-font-weight: bold; -fx-text-fill: #333333;">
+                   <VBox.margin><Insets top="10.0" /></VBox.margin></Label>
                 </VBox>
 
                 <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" onMouseClicked="#handleTaxCalculationServices" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="1">

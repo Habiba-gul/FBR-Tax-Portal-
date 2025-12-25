@@ -17,8 +17,14 @@ public class UserDashboardController {
 
     @FXML
     private void handleUserInfo(MouseEvent event) {
-        // Navigating to the User Information screen we just discussed
+        // Navigating to the User Information screen
         switchScene(event, "UserInfo.fxml", "FBR Tax Portal - User Information", 800, 600);
+    }
+    
+    @FXML
+    private void handleCurrentTaxRecords(MouseEvent event) {
+        System.out.println("SWITCHING TO TAX RATES SCREEN");
+        switchScene(event, "UserTaxRates.fxml", "FBR Tax Portal - Tax Rates", 900, 600);
     }
 
     @FXML
@@ -30,21 +36,20 @@ public class UserDashboardController {
     /**
      * Helper method to reduce code repetition when switching scenes.
      */
-    private void switchScene(MouseEvent event, String fxmlFile, String title, int width, int height) {
+    private void switchScene(MouseEvent event, String fxmlPath, String title, int width, int height) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
-
+            
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root, width, height); 
+            Scene scene = new Scene(root, width, height);
             
             stage.setScene(scene);
             stage.setTitle(title);
             stage.show();
-            
         } catch (IOException e) {
+            System.err.println("Failed to load " + fxmlPath);
             e.printStackTrace();
-            System.err.println("Failed to load " + fxmlFile);
         }
     }
 
@@ -79,7 +84,6 @@ public class UserDashboardController {
     }
 
     // Placeholder handlers for remaining features
-    @FXML private void handleCurrentTaxRecords(MouseEvent event) { System.out.println("Current Tax Records Clicked"); }
     @FXML private void handlePaymentAndTransaction(MouseEvent event) { System.out.println("Payments Clicked"); }
     @FXML private void handleHistoryAndRecords(MouseEvent event) { System.out.println("History Clicked"); }
     @FXML private void handleAlertsAndNotifications(MouseEvent event) { System.out.println("Alerts Clicked"); }
