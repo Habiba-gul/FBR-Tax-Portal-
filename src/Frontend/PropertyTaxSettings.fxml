@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Frontend.PropertyTaxSettingsController" spacing="15" alignment="TOP_CENTER"
+      style="-fx-padding: 20; -fx-background-color: #f4f4f9;">
+
+    <Label text="Manage Property Tax Ranges" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+
+    <TabPane tabClosingPolicy="UNAVAILABLE">
+        <Tab text="Residential">
+            <VBox spacing="10">
+                <TableView fx:id="residentialTable" prefHeight="300" editable="true">
+                    <columns>
+                        <TableColumn fx:id="resMinCol" text="Min Amount" prefWidth="150"/>
+                        <TableColumn fx:id="resMaxCol" text="Max Amount" prefWidth="150"/>
+                        <TableColumn fx:id="resRateCol" text="Rate (%)" prefWidth="100"/>
+                        <TableColumn fx:id="resActionCol" text="Actions" prefWidth="100"/>
+                    </columns>
+                </TableView>
+                <Button text="Add Range (Residential)" onAction="#addResidentialRange" style="-fx-background-color: #4e54c8; -fx-text-fill: white;"/>
+            </VBox>
+        </Tab>
+
+        <Tab text="Commercial">
+            <VBox spacing="10">
+                <TableView fx:id="commercialTable" prefHeight="300" editable="true">
+                    <columns>
+                        <TableColumn fx:id="commMinCol" text="Min Amount" prefWidth="150"/>
+                        <TableColumn fx:id="commMaxCol" text="Max Amount" prefWidth="150"/>
+                        <TableColumn fx:id="commRateCol" text="Rate (%)" prefWidth="100"/>
+                        <TableColumn fx:id="commActionCol" text="Actions" prefWidth="100"/>
+                    </columns>
+                </TableView>
+                <Button text="Add Range (Commercial)" onAction="#addCommercialRange" style="-fx-background-color: #4e54c8; -fx-text-fill: white;"/>
+            </VBox>
+        </Tab>
+    </TabPane>
+
+    <HBox spacing="20" alignment="CENTER">
+        <Button text="Save All Changes" onAction="#saveAll" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-padding: 10 20;"/>
+        <Button text="Back" onAction="#handleBack" style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-padding: 10 20;"/>
+    </HBox>
+</VBox>

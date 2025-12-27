@@ -1,74 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="Frontend.TaxRateSettingsController"
-            prefHeight="600.0" prefWidth="800.0"
+<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Frontend.TaxRateSettingsController" prefHeight="600" prefWidth="800"
             style="-fx-background-color: #f4f6f9;">
 
-    <children>
-        <VBox spacing="20.0" alignment="TOP_CENTER" AnchorPane.topAnchor="20.0"
-              AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0">
+    <VBox alignment="TOP_CENTER" spacing="20" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="50" AnchorPane.rightAnchor="50">
+        <Label text="Tax Rate Settings" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+        <Label text="Select category to manage ranges"/>
 
-            <Label text="Tax Rate Settings" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #004e92;"/>
-            <Label text="Adjust tax rates as per current fiscal law (values in %)" style="-fx-text-fill: #555;"/>
+        <GridPane hgap="20" vgap="15">
+            <Button text="Salary Taxes" onAction="#handleSalarySettings" prefWidth="200" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <Button text="Property Taxes" onAction="#handlePropertySettings" prefWidth="200" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <Button text="Vehicle Taxes" onAction="#handleVehicleSettings" prefWidth="200" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <Button text="GST" onAction="#handleGstSettings" prefWidth="200" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        </GridPane>
 
-            <!-- Income Tax Section with Type Selector -->
-            <TitledPane text="Income Tax Rates" expanded="true" collapsible="false">
-                <content>
-                    <VBox spacing="15">
-                        <HBox spacing="15" alignment="CENTER_LEFT">
-                            <Label text="Income Type:" prefWidth="150"/>
-                            <ComboBox fx:id="incomeTypeCombo" prefWidth="200"/>
-                        </HBox>
-                        <GridPane hgap="20" vgap="15" alignment="CENTER">
-                            <columnConstraints>
-                                <ColumnConstraints hgrow="SOMETIMES" prefWidth="300"/>
-                                <ColumnConstraints hgrow="SOMETIMES" prefWidth="150"/>
-                            </columnConstraints>
-                            <Label text="Tax Rate (%):" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                            <TextField fx:id="incomeTaxRateField" promptText="e.g. 15.0" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-                        </GridPane>
-                    </VBox>
-                </content>
-            </TitledPane>
-
-            <!-- Other Tax Rates -->
-            <TitledPane text="Other Tax Rates" expanded="true" collapsible="false">
-                <content>
-                    <GridPane hgap="20" vgap="15" alignment="CENTER">
-                        <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" prefWidth="300"/>
-                            <ColumnConstraints hgrow="SOMETIMES" prefWidth="150"/>
-                        </columnConstraints>
-
-                        <Label text="Vehicle Tax Rate (%):" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                        <TextField fx:id="vehicleRateField" promptText="e.g. 10.0" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-
-                        <Label text="Residential Property Tax Rate (%):" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                        <TextField fx:id="residentialRateField" promptText="e.g. 10.0" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-
-                        <Label text="Commercial Property Tax Rate (%):" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                        <TextField fx:id="commercialRateField" promptText="e.g. 15.0" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-
-                        <Label text="GST Rate (%):" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                        <TextField fx:id="gstRateField" promptText="e.g. 17.0" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-
-                        <Label text="Late Payment Penalty Rate (%):" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                        <TextField fx:id="penaltyRateField" promptText="e.g. 10.0" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-                    </GridPane>
-                </content>
-            </TitledPane>
-
-            <HBox spacing="20" alignment="CENTER">
-                <Button text="Save Changes" onAction="#handleSave"
-                        style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
-                <Button text="Back to Dashboard" onAction="#handleBack"
-                        style="-fx-background-color: #004e92; -fx-text-fill: white; -fx-padding: 10 20;"/>
-            </HBox>
-        </VBox>
-    </children>
+        <Button text="Back to Dashboard" onAction="#handleBack" style="-fx-background-color: #6c757d; -fx-text-fill: white;"/>
+    </VBox>
 </AnchorPane>

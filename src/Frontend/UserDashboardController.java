@@ -17,33 +17,27 @@ public class UserDashboardController {
 
     @FXML
     private void handleUserInfo(MouseEvent event) {
-        // Navigating to the User Information screen
         switchScene(event, "UserInfo.fxml", "FBR Tax Portal - User Information", 800, 600);
     }
-    
+
     @FXML
     private void handleCurrentTaxRecords(MouseEvent event) {
-        System.out.println("SWITCHING TO TAX RATES SCREEN");
-        switchScene(event, "UserTaxRates.fxml", "FBR Tax Portal - Tax Rates", 900, 600);
+        switchScene(event, "UserTaxRates.fxml", "FBR Tax Portal - Tax Rates", 900, 700);
     }
 
     @FXML
     private void handleTaxCalculationServices(MouseEvent event) {
-        // Navigating to the Income Tax Form
-        switchScene(event, "IncomeTaxForm.fxml", "FBR Tax Portal - Income Tax Form", 1000, 750);
+        switchScene(event, "TaxCalculation.fxml", "FBR Tax Portal - Tax Calculation Services", 1000, 800);
     }
 
-    /**
-     * Helper method to reduce code repetition when switching scenes.
-     */
     private void switchScene(MouseEvent event, String fxmlPath, String title, int width, int height) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
-            
+
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             Scene scene = new Scene(root, width, height);
-            
+
             stage.setScene(scene);
             stage.setTitle(title);
             stage.show();
@@ -71,12 +65,11 @@ public class UserDashboardController {
             Parent root = loader.load();
 
             Stage stage = (Stage) sourceNode.getScene().getWindow();
-            Scene scene = new Scene(root, 800, 600); 
-            
+            Scene scene = new Scene(root, 800, 600);
+
             stage.setScene(scene);
             stage.setTitle("FBR Tax Application - Login");
             stage.show();
-            
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("Failed to load Login.fxml during logout.");

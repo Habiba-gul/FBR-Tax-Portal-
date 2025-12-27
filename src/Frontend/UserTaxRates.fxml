@@ -1,37 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx/21"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="Frontend.UserTaxRatesController"
-      spacing="15" alignment="TOP_CENTER"
-      style="-fx-padding: 15; -fx-background-color: #f4f4f9;">
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Frontend.UserTaxRatesController" spacing="15" alignment="TOP_CENTER"
+      style="-fx-padding: 20; -fx-background-color: #f4f4f9;">
 
-    <!-- Header without "Read Only" text -->
-    <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: linear-gradient(to right, #4e54c8, #8f94fb); -fx-padding: 10;">
-        <Label text="Tax Rates"
-               style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;" />
+    <Label text="View Current Tax Rates" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+
+    <HBox spacing="15" alignment="CENTER">
+        <Label text="Select Category:" />
+        <ComboBox fx:id="categoryCombo" prefWidth="200" />
     </HBox>
 
-    <!-- Table -->
-    <TableView fx:id="taxTable" prefHeight="400" style="-fx-border-color: #8f94fb; -fx-border-radius: 8;">
+    <HBox spacing="15" alignment="CENTER" visible="false" fx:id="subCategoryBox">
+        <Label text="Select Sub-Category:" />
+        <ComboBox fx:id="subCategoryCombo" prefWidth="200" />
+    </HBox>
+
+    <Button text="Show Ranges" onAction="#handleShowRanges" style="-fx-background-color: #4e54c8; -fx-text-fill: white;"/>
+
+    <TableView fx:id="rangesTable" prefHeight="400">
         <columns>
-            <TableColumn fx:id="typeCol" text="Tax Type" prefWidth="150"/>
-            <TableColumn fx:id="categoryCol" text="Category" prefWidth="150"/>
-            <TableColumn fx:id="minCol" text="Min Income" prefWidth="120"/>
-            <TableColumn fx:id="maxCol" text="Max Income" prefWidth="120"/>
+            <TableColumn fx:id="minCol" text="Min Amount" prefWidth="150"/>
+            <TableColumn fx:id="maxCol" text="Max Amount" prefWidth="150"/>
             <TableColumn fx:id="rateCol" text="Rate (%)" prefWidth="100"/>
         </columns>
     </TableView>
 
-    <!-- Footer with Back to Dashboard button -->
-    <HBox alignment="CENTER">
-        <Button text="← Back to Dashboard" fx:id="backBtn" onAction="#handleBackToDashboard"
-                style="-fx-background-color: #4e54c8; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;" />
-    </HBox>
+    <Button text="← Back to Dashboard" fx:id="backBtn" onAction="#handleBackToDashboard"
+            style="-fx-background-color: #6c757d; -fx-text-fill: white;"/>
 </VBox>

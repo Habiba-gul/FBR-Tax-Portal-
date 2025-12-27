@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Frontend.SalaryTaxSettingsController" spacing="15" alignment="TOP_CENTER"
+      style="-fx-padding: 20; -fx-background-color: #f4f4f9;">
+
+    <Label text="Manage Salary Tax Ranges" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+
+    <TabPane tabClosingPolicy="UNAVAILABLE">
+        <Tab text="Government">
+            <VBox spacing="10">
+                <TableView fx:id="govTable" prefHeight="300" editable="true">
+                    <columns>
+                        <TableColumn fx:id="govMinCol" text="Min Amount" prefWidth="150"/>
+                        <TableColumn fx:id="govMaxCol" text="Max Amount" prefWidth="150"/>
+                        <TableColumn fx:id="govRateCol" text="Rate (%)" prefWidth="100"/>
+                        <TableColumn fx:id="govActionCol" text="Actions" prefWidth="100"/>
+                    </columns>
+                </TableView>
+                <Button text="Add Range (Gov)" onAction="#addGovRange" style="-fx-background-color: #4e54c8; -fx-text-fill: white;"/>
+            </VBox>
+        </Tab>
+
+        <Tab text="Private">
+            <VBox spacing="10">
+                <TableView fx:id="privateTable" prefHeight="300" editable="true">
+                    <columns>
+                        <TableColumn fx:id="privateMinCol" text="Min Amount" prefWidth="150"/>
+                        <TableColumn fx:id="privateMaxCol" text="Max Amount" prefWidth="150"/>
+                        <TableColumn fx:id="privateRateCol" text="Rate (%)" prefWidth="100"/>
+                        <TableColumn fx:id="privateActionCol" text="Actions" prefWidth="100"/>
+                    </columns>
+                </TableView>
+                <Button text="Add Range (Private)" onAction="#addPrivateRange" style="-fx-background-color: #4e54c8; -fx-text-fill: white;"/>
+            </VBox>
+        </Tab>
+
+        <Tab text="Business">
+            <VBox spacing="10">
+                <TableView fx:id="businessTable" prefHeight="300" editable="true">
+                    <columns>
+                        <TableColumn fx:id="businessMinCol" text="Min Amount" prefWidth="150"/>
+                        <TableColumn fx:id="businessMaxCol" text="Max Amount" prefWidth="150"/>
+                        <TableColumn fx:id="businessRateCol" text="Rate (%)" prefWidth="100"/>
+                        <TableColumn fx:id="businessActionCol" text="Actions" prefWidth="100"/>
+                    </columns>
+                </TableView>
+                <Button text="Add Range (Business)" onAction="#addBusinessRange" style="-fx-background-color: #4e54c8; -fx-text-fill: white;"/>
+            </VBox>
+        </Tab>
+    </TabPane>
+
+    <HBox spacing="20" alignment="CENTER">
+        <Button text="Save All Changes" onAction="#saveAll" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-padding: 10 20;"/>
+        <Button text="Back" onAction="#handleBack" style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-padding: 10 20;"/>
+    </HBox>
+</VBox>
