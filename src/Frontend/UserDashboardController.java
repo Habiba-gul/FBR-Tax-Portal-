@@ -77,7 +77,27 @@ public class UserDashboardController {
     }
 
     // Placeholder handlers for remaining features
-    @FXML private void handlePaymentAndTransaction(MouseEvent event) { System.out.println("Payments Clicked"); }
+    @FXML
+private void handlePaymentAndTransaction(MouseEvent event) {
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("PaymentTransaction.fxml"));
+        Parent root = loader.load();
+        PaymentTransactionController ctrl = loader.getController();
+
+        // Example data - replace with real calculated values from TaxCalculationController
+        double totalTax = 50000.0;  // Get from your calculation
+        double percentage = 17.0;
+        double deducted = totalTax * 0.1;
+
+        ctrl.setTaxDetails(totalTax, percentage, deducted);
+
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(root, 600, 400));
+        stage.setTitle("Payment & Transaction Details");
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
     @FXML private void handleHistoryAndRecords(MouseEvent event) { System.out.println("History Clicked"); }
     @FXML private void handleAlertsAndNotifications(MouseEvent event) { System.out.println("Alerts Clicked"); }
     @FXML private void handleReportReadyData(MouseEvent event) { System.out.println("Reports Clicked"); }
