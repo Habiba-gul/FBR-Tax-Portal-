@@ -24,11 +24,6 @@ public class TaxCalculationController {
     private final List<ReceiptItem> receiptItems = new ArrayList<>();
 
     @FXML
-    public void initialize() {
-        // No init needed
-    }
-
-    @FXML
     private void addSalaryForm(ActionEvent event) {
         VBox form = new VBox(10);
         Label title = new Label("Salary Details");
@@ -45,7 +40,7 @@ public class TaxCalculationController {
     private void addPropertyForm(ActionEvent event) {
         VBox form = new VBox(10);
         Label title = new Label("Property Details");
-        ComboBox<String> propType = new ComboBox<>(FXCollections.observableArrayList("Residential", "Commercial", "Both"));
+        ComboBox<String> propType = new ComboBox<>(FXCollections.observableArrayList("Residential", "Commercial"));
         propType.setPromptText("Property Type");
         TextField numProps = new TextField();
         numProps.setPromptText("Number of Properties");
@@ -57,6 +52,8 @@ public class TaxCalculationController {
     }
 
     private void generatePropertyFields(VBox form, String type, String numStr) {
+        // Clear previous price fields
+        form.getChildren().removeIf(node -> node instanceof TextField && ((TextField) node).getPromptText().contains("Price for"));
         try {
             int num = Integer.parseInt(numStr);
             for (int i = 1; i <= num; i++) {
@@ -65,7 +62,7 @@ public class TaxCalculationController {
                 form.getChildren().add(priceField);
             }
         } catch (NumberFormatException ex) {
-            new Alert(Alert.AlertType.ERROR, "Please enter a valid number for properties").show();
+            new Alert(Alert.AlertType.ERROR, "Enter a valid number").show();
         }
     }
 
@@ -83,6 +80,7 @@ public class TaxCalculationController {
     }
 
     private void generateVehicleFields(VBox form, String numStr) {
+        form.getChildren().removeIf(node -> node instanceof TextField && ((TextField) node).getPromptText().contains("Price for Vehicle"));
         try {
             int num = Integer.parseInt(numStr);
             for (int i = 1; i <= num; i++) {
@@ -91,7 +89,7 @@ public class TaxCalculationController {
                 form.getChildren().add(priceField);
             }
         } catch (NumberFormatException ex) {
-            new Alert(Alert.AlertType.ERROR, "Please enter a valid number for vehicles").show();
+            new Alert(Alert.AlertType.ERROR, "Enter a valid number").show();
         }
     }
 
@@ -109,6 +107,7 @@ public class TaxCalculationController {
     }
 
     private void generateGstFields(VBox form, String numStr) {
+        form.getChildren().removeIf(node -> node instanceof HBox);
         try {
             int num = Integer.parseInt(numStr);
             for (int i = 1; i <= num; i++) {
@@ -123,60 +122,68 @@ public class TaxCalculationController {
                 form.getChildren().add(itemBox);
             }
         } catch (NumberFormatException ex) {
-            new Alert(Alert.AlertType.ERROR, "Please enter a valid number for items").show();
+            new Alert(Alert.AlertType.ERROR, "Enter a valid number").show();
         }
     }
 
     @FXML
     private void calculateTax(ActionEvent event) {
         receiptItems.clear();
+        double totalTax = 0.0;
+        boolean hasValidData = false;
 
         for (Node child : dynamicInputPane.getChildren()) {
             if (child instanceof VBox form) {
                 TaxCalculator calc = (TaxCalculator) form.getUserData();
                 if (calc == null) continue;
 
-                // Collect all entered prices (simplified - expand for real logic)
-                List<Double> prices = new ArrayList<>();
                 for (Node node : form.getChildren()) {
-                    if (node instanceof TextField tf && tf.getPromptText().contains("Price")) {
-                        try {
-                            double price = Double.parseDouble(tf.getText());
-                            prices.add(price);
-                        } catch (NumberFormatException ignored) {}
-                    }
-                }
+                    if (node instanceof TextField tf) {
+                        String text = tf.getText().trim();
+                        if (!text.isEmpty()) {
+                            try {
+                                double amount = Double.parseDouble(text);
+                                double tax = calc.calculateTaxForCategory("", amount);
+                                receiptItems.add(new ReceiptItem(tf.getPromptText(), amount, 1, tax));
+                                totalTax += tax;
+                                hasValidData = true;
+                            } catch (NumberFormatException ignored) {}
+                        }
+                    } else if (node instanceof HBox itemBox) {
+                        // GST items
+                        TextField descField = (TextField) itemBox.getChildren().get(0);
+                        TextField priceField = (TextField) itemBox.getChildren().get(1);
+                        TextField qtyField = (TextField) itemBox.getChildren().get(2);
 
-                if (!prices.isEmpty()) {
-                    double totalTax = calc.calculateTaxForCategory("", prices.stream().mapToDouble(Double::doubleValue).toArray());
-                    receiptItems.add(new ReceiptItem("Items from form", prices.get(0), prices.size(), totalTax));
+                        String desc = descField.getText().trim();
+                        String priceText = priceField.getText().trim();
+                        String qtyText = qtyField.getText().trim();
+
+                        if (!priceText.isEmpty() && !qtyText.isEmpty()) {
+                            try {
+                                double price = Double.parseDouble(priceText);
+                                int qty = Integer.parseInt(qtyText);
+                                double totalAmount = price * qty;
+                                double tax = calc.calculateTaxForCategory("", totalAmount);
+                                receiptItems.add(new ReceiptItem(desc.isEmpty() ? "GST Item" : desc, price, qty, tax));
+                                totalTax += tax;
+                                hasValidData = true;
+                            } catch (NumberFormatException ignored) {}
+                        }
+                    }
                 }
             }
         }
 
-        if (receiptItems.isEmpty()) {
-            new Alert(Alert.AlertType.WARNING, "No valid data entered").show();
+        if (!hasValidData) {
+            new Alert(Alert.AlertType.WARNING, "No valid data entered.").show();
             return;
         }
 
-        // Show success message only - no navigation
-    Alert success = new Alert(Alert.AlertType.INFORMATION);
-    success.setTitle("Tax Calculated");
-    success.setHeaderText("Success!");
-    success.setContentText("Tax calculated successfully!\nFor details, go to Payment and Transaction.");
-    success.showAndWait();
+        SystemManager.setTotalTax(totalTax);
+        SystemManager.setReceiptItems(receiptItems);
 
-        // Navigate to PaymentTransaction.fxml (add this if you have it)
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("PaymentTransaction.fxml"));
-            Parent root = loader.load();
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root, 600, 400));
-            stage.setTitle("Payment & Transaction Details");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        new Alert(Alert.AlertType.INFORMATION, "Tax calculated successfully! Go to Payment and Transaction for details.").show();
     }
 
     @FXML

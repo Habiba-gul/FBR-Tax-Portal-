@@ -9,6 +9,8 @@ import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
+import Backend.SystemManager;
+
 import java.io.IOException;
 
 public class UserDashboardController {
@@ -30,21 +32,45 @@ public class UserDashboardController {
         switchScene(event, "TaxCalculation.fxml", "FBR Tax Portal - Tax Calculation Services", 1000, 800);
     }
 
-    private void switchScene(MouseEvent event, String fxmlPath, String title, int width, int height) {
+    @FXML
+    private void handlePaymentAndTransaction(MouseEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("PaymentTransaction.fxml"));
             Parent root = loader.load();
+            PaymentTransactionController ctrl = loader.getController();
+
+            // Get the calculated tax from SystemManager
+            double totalTax = SystemManager.getTotalTax();
+            double percentage = 17.0;  // You can make this dynamic later
+            double deducted = totalTax * 0.1;  // Example deduction
+
+            ctrl.setTaxDetails(totalTax, percentage, deducted);
 
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root, width, height);
-
-            stage.setScene(scene);
-            stage.setTitle(title);
+            stage.setScene(new Scene(root, 600, 400));
+            stage.setTitle("Payment & Transaction Details");
             stage.show();
         } catch (IOException e) {
-            System.err.println("Failed to load " + fxmlPath);
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    private void handleHistoryAndRecords(MouseEvent event) {
+        System.out.println("History & Records Clicked");
+        // Add your history screen later
+    }
+
+    @FXML
+    private void handleAlertsAndNotifications(MouseEvent event) {
+        System.out.println("Alerts & Notifications Clicked");
+        // Add alerts screen later
+    }
+
+    @FXML
+    private void handleReportReadyData(MouseEvent event) {
+        System.out.println("Report Ready Data Clicked");
+        // Add report screen later
     }
 
     // --- Logout Functionality ---
@@ -61,44 +87,41 @@ public class UserDashboardController {
 
     private void returnToLogin(Node sourceNode) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("Login.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));  // Note: small 'l' as per your file name
             Parent root = loader.load();
 
             Stage stage = (Stage) sourceNode.getScene().getWindow();
             Scene scene = new Scene(root, 800, 600);
 
             stage.setScene(scene);
-            stage.setTitle("FBR Tax Application - Login");
+            stage.setTitle("FBR Tax Portal - Login");
             stage.show();
+
+            // Clear session
+            SystemManager.logout();
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Failed to load Login.fxml during logout.");
+            System.err.println("Failed to load login.fxml during logout.");
         }
     }
 
-    // Placeholder handlers for remaining features
-    @FXML
-private void handlePaymentAndTransaction(MouseEvent event) {
-    try {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("PaymentTransaction.fxml"));
-        Parent root = loader.load();
-        PaymentTransactionController ctrl = loader.getController();
+    /**
+     * Helper method to reduce code repetition when switching scenes.
+     */
+    private void switchScene(MouseEvent event, String fxmlPath, String title, int width, int height) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
 
-        // Example data - replace with real calculated values from TaxCalculationController
-        double totalTax = 50000.0;  // Get from your calculation
-        double percentage = 17.0;
-        double deducted = totalTax * 0.1;
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root, width, height);
 
-        ctrl.setTaxDetails(totalTax, percentage, deducted);
-
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root, 600, 400));
-        stage.setTitle("Payment & Transaction Details");
-    } catch (IOException e) {
-        e.printStackTrace();
+            stage.setScene(scene);
+            stage.setTitle(title);
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Failed to load " + fxmlPath);
+            e.printStackTrace();
+        }
     }
-}
-    @FXML private void handleHistoryAndRecords(MouseEvent event) { System.out.println("History Clicked"); }
-    @FXML private void handleAlertsAndNotifications(MouseEvent event) { System.out.println("Alerts Clicked"); }
-    @FXML private void handleReportReadyData(MouseEvent event) { System.out.println("Reports Clicked"); }
 }
