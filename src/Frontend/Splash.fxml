@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="Frontend.SplashController"
+           style="-fx-background-color: white;">
+
+   
+    <VBox alignment="CENTER" spacing="20">
+
+        
+        <ImageView fx:id="logoImage" fitWidth="200" fitHeight="200" preserveRatio="true"/>
+
+        
+        <Text text="FBR Tax Portal"
+              style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-fill: #0A3D62;"/>
+    </VBox>
+
+</StackPane>
