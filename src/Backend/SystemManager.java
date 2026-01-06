@@ -5,6 +5,7 @@ import java.util.List;
 import Frontend.ReceiptItem;  // Import from Frontend
 
 public class SystemManager {
+    
     private static UserInfo currentUser;
     private static double totalTax = 0.0;
     private static List<ReceiptItem> receiptItems = new ArrayList<>();

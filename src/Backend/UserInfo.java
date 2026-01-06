@@ -12,6 +12,7 @@ public class UserInfo {
     private String email;
     private String phone;
     private String role;
+    private boolean taxPaid; // optional to track status
 
     // Getters and Setters
     public int getId() { return id; }
@@ -40,4 +41,7 @@ public class UserInfo {
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
+
+    public boolean isTaxPaid() { return taxPaid; }
+    public void setTaxPaid(boolean taxPaid) { this.taxPaid = taxPaid; }
 }

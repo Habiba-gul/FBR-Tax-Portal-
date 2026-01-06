@@ -53,30 +53,47 @@ public class UserDashboardController {
         // Placeholder: Add TaxLaws.fxml if needed
         switchScene(event, "TaxLaws.fxml", "FBR Tax Portal - Tax Laws", 800, 600);
     }
+@FXML
+private void handleAlerts(MouseEvent event) {
+    try {
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("Notifications.fxml")
+        );
+        Parent root = loader.load();
 
-        @FXML
-    private void handleAlerts(MouseEvent event) {
-        // Temporary placeholder - will implement later
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Coming Soon");
-        alert.setHeaderText(null);
-        alert.setContentText("Alerts & Notifications feature is under development.");
-        alert.showAndWait();
+        Stage stage = new Stage();
+        stage.setTitle("Alerts & Notifications");
+        stage.setScene(new Scene(root, 800, 600));
+        stage.show();
+
+    } catch (IOException e) {
+        e.printStackTrace();
     }
+}
 
-    @FXML
-    private void handleReportReadyData(MouseEvent event) {
-        // Temporary placeholder - will implement later
+
+@FXML
+private void handleReportReadyData(MouseEvent event) {
+    if (SystemManager.getCurrentUser() != null) {
+        int currentUserId = SystemManager.getCurrentUser().getId();
+        // Fetch report-ready data for this user from DB (if implemented)
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Coming Soon");
-        alert.setHeaderText(null);
+        alert.setTitle("Report Ready Data");
+        alert.setHeaderText("User ID: " + currentUserId);
         alert.setContentText("Report-Ready Data feature is under development.");
         alert.showAndWait();
+    } else {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText("No user is currently logged in.");
+        alert.showAndWait();
     }
+}
 
-    // handleTaxReports is already in your controller (from previous code)
-    // It opens TaxHistory.fxml
 
+
+    
     @FXML
     private void handleLogout(MouseEvent event) {
         try {
@@ -91,6 +108,7 @@ public class UserDashboardController {
             System.err.println("Failed to load login.fxml during logout.");
         }
     }
+    
 
     /**
      * Helper method to reduce code repetition when switching scenes.

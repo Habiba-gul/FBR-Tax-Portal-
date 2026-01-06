@@ -2,6 +2,7 @@ package Frontend;
 
 import Backend.AdminService;
 import Backend.User;
+import Backend.NotificationDAO;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -29,28 +30,29 @@ public class AdminDashboardController {
     private final AdminService adminService = new AdminService();
 
     // ================= INITIALIZE =================
-@FXML
-public void initialize() {
-    cnicColumn.setCellValueFactory(new PropertyValueFactory<>("cnic"));
-    nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-    statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
-    penaltyColumn.setCellValueFactory(new PropertyValueFactory<>("penalty"));
+    @FXML
+    public void initialize() {
+        cnicColumn.setCellValueFactory(new PropertyValueFactory<>("cnic"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+        penaltyColumn.setCellValueFactory(new PropertyValueFactory<>("penalty"));
 
-    loadAllUsers();
+        loadAllUsers();
 
-    userTable.getSelectionModel().selectedItemProperty().addListener(
-            (obs, oldVal, newVal) -> {
-                if (newVal != null) updateControlPanel(newVal);
-                else clearControlPanel();
-            }
-    );
-}
+        userTable.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldVal, newVal) -> {
+                    if (newVal != null) updateControlPanel(newVal);
+                    else clearControlPanel();
+                }
+        );
+    }
+
     // ================= LOADERS =================
-   private void loadAllUsers() {
-    ObservableList<User> users = adminService.getAllUsers();
-    System.out.println("Loaded " + users.size() + " users from database");
-    userTable.setItems(users);
-}
+    private void loadAllUsers() {
+        ObservableList<User> users = adminService.getAllUsers();
+        System.out.println("Loaded " + users.size() + " users from database");
+        userTable.setItems(users);
+    }
 
     // ================= UI HELPERS =================
     private void updateControlPanel(User user) {
@@ -66,35 +68,22 @@ public void initialize() {
     }
 
     // ================= BUTTON ACTIONS =================
-
-    @FXML
-    private void handleViewAll() {
-        loadAllUsers();
-    }
-
-    @FXML
-    private void handleViewDefaulters() {
-        userTable.setItems(adminService.getDefaulterList());
-    }
+    @FXML private void handleViewAll() { loadAllUsers(); }
+    @FXML private void handleViewDefaulters() { userTable.setItems(adminService.getDefaulterList()); }
 
     @FXML
     private void handlePenalty() {
-
         User selected = userTable.getSelectionModel().getSelectedItem();
-
         if (selected == null) {
-            showAlert(Alert.AlertType.WARNING, "No Selection",
-                    "Please select a taxpayer first.");
+            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a taxpayer first.");
             return;
         }
-
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirm Penalty");
         alert.setHeaderText("Apply penalty to " + selected.getName());
         alert.setContentText("Penalty will be calculated automatically by system.");
 
         Optional<ButtonType> result = alert.showAndWait();
-
         if (result.isPresent() && result.get() == ButtonType.OK) {
             adminService.applyPenalty(selected.getCnic());
             loadAllUsers();
@@ -103,55 +92,64 @@ public void initialize() {
 
     @FXML
     private void handleOverride() {
-
         User selected = userTable.getSelectionModel().getSelectedItem();
-
         if (selected == null) {
-            showAlert(Alert.AlertType.WARNING, "No Selection",
-                    "Please select a taxpayer.");
+            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a taxpayer.");
             return;
         }
-
         adminService.overridePenalty(selected.getCnic());
         loadAllUsers();
     }
 
     @FXML
     private void handleSuspend() {
-
         User selected = userTable.getSelectionModel().getSelectedItem();
-
         if (selected == null) {
-            showAlert(Alert.AlertType.WARNING, "No Selection",
-                    "Please select a taxpayer.");
+            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a taxpayer.");
             return;
         }
-
         adminService.suspendUser(selected.getCnic());
         loadAllUsers();
     }
 
-    // ================= NAVIGATION =================
     @FXML
-    private void handleTaxSettings() {
+private void handleSendReminder() {
+    User selected = userTable.getSelectionModel().getSelectedItem();
+    if (selected == null) {
+        showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a taxpayer.");
+        return;
+    }
+
+    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+    alert.setTitle("Send Reminder");
+    alert.setHeaderText("Send tax reminder to " + selected.getName());
+    alert.setContentText("Are you sure you want to send a reminder?");
+
+    Optional<ButtonType> result = alert.showAndWait();
+    if (result.isPresent() && result.get() == ButtonType.OK) {
+        adminService.sendReminder(selected.getId());
+        showAlert(Alert.AlertType.INFORMATION, "Reminder Sent",
+                  "Reminder sent successfully to " + selected.getName());
+    }
+}
+
+
+    // ================= NAVIGATION =================
+    @FXML private void handleTaxSettings() {
         try {
-            Parent root = FXMLLoader.load(
-                    getClass().getResource("TaxRateSettings.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("TaxRateSettings.fxml"));
             Stage stage = (Stage) userTable.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.setTitle("FBR Admin - Tax Rate Settings");
             stage.centerOnScreen();
         } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR,
-                    "Error", "Unable to open Tax Rate Settings.");
+            showAlert(Alert.AlertType.ERROR, "Error", "Unable to open Tax Rate Settings.");
         }
     }
 
-    @FXML
-    private void handleLogout() {
+    @FXML private void handleLogout() {
         try {
-            Parent root = FXMLLoader.load(
-                    getClass().getResource("Login.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("Login.fxml"));
             Stage stage = (Stage) userTable.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.setTitle("FBR Tax Portal - Login");
@@ -169,5 +167,4 @@ public void initialize() {
         alert.setContentText(msg);
         alert.showAndWait();
     }
-    
 }

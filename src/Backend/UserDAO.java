@@ -1,10 +1,11 @@
 package Backend;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDAO {
 
-    // Fetch full user details by CNIC
     public static UserInfo getUserByCNIC(String cnic) {
         String sql = "SELECT * FROM users WHERE cnic = ?";
         try (Connection con = DBconnection.getConnection();
@@ -18,10 +19,7 @@ public class UserDAO {
                 user.setId(rs.getInt("id"));
                 user.setName(rs.getString("name"));
                 user.setCnic(rs.getString("cnic"));
-
-                Date dobSql = rs.getDate("dob");
-                user.setDob(dobSql != null ? dobSql.toLocalDate() : null);
-
+                user.setDob(rs.getDate("dob") != null ? rs.getDate("dob").toLocalDate() : null);
                 user.setGender(rs.getString("gender"));
                 user.setAddress(rs.getString("address"));
                 user.setEmail(rs.getString("email"));
@@ -29,15 +27,14 @@ public class UserDAO {
                 user.setRole(rs.getString("role"));
                 return user;
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    // Update existing user profile
     public static boolean updateUser(UserInfo user) {
-        String sql = "UPDATE users SET name = ?, dob = ?, gender = ?, address = ?, email = ?, phone = ? WHERE cnic = ?";
+        String sql = "UPDATE users SET name=?, dob=?, gender=?, address=?, email=?, phone=? WHERE cnic=?";
         try (Connection con = DBconnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -50,32 +47,34 @@ public class UserDAO {
             ps.setString(7, user.getCnic());
 
             return ps.executeUpdate() > 0;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    // Register new user (ye method ab fully working hai)
-    public static boolean registerUser(String name, String cnic, String email, String phone, String password) {
-        String sql = "INSERT INTO users (name, cnic, email, phone, password, role) VALUES (?, ?, ?, ?, ?, 'USER')";
-
-        try (Connection con = DBconnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setString(1, name);
-            ps.setString(2, cnic);
-            ps.setString(3, email);
-            ps.setString(4, phone);
-            ps.setString(5, password);  // Testing ke liye plain text (baad mein hash kar sakte ho)
-
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;  // Success → true
-
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static List<UserInfo> getUnpaidUsers() {
+        List<UserInfo> list = new ArrayList<>();
+        String sql = "SELECT u.*, tp.status FROM users u JOIN taxpayer_profile tp ON u.id = tp.user_id WHERE tp.status='Unpaid'";
+        try (Connection con = DBconnection.getConnection();
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                UserInfo user = new UserInfo();
+                user.setId(rs.getInt("id"));
+                user.setName(rs.getString("name"));
+                user.setCnic(rs.getString("cnic"));
+                user.setEmail(rs.getString("email"));
+                user.setPhone(rs.getString("phone"));
+                user.setRole(rs.getString("role"));
+                user.setTaxPaid("Paid".equalsIgnoreCase(rs.getString("status")));
+                list.add(user);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }
