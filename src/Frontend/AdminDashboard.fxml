@@ -34,7 +34,7 @@
             </center>
 
             <bottom>
-                <HBox spacing="20.0" style="-fx-background-color: #f4f4f4; -fx-border-color: #cccccc; -fx-border-width: 1 0 0 0; -fx-padding: 10;"> <!-- Removed maxHeight="150.0" for flexibility -->
+                <HBox spacing="20.0" style="-fx-background-color: #6ea7f1ff; -fx-border-color: #59b3eeff; -fx-border-width: 1 0 0 0; -fx-padding: 10;"> <!-- Removed maxHeight="150.0" for flexibility -->
                     <VBox spacing="3.0" prefWidth="300.0">
                         <Label text="SELECTED TAXPAYER DETAILS" style="-fx-font-weight: bold; -fx-text-fill: #555; -fx-font-size: 12;"/>
                         <Label fx:id="selectedNameLabel" text="Name: None Selected" style="-fx-font-size: 11;"/>

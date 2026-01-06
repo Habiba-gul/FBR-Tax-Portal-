@@ -1,34 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="Frontend.PaymentTransactionController" spacing="20" alignment="CENTER"
-      style="-fx-padding: 40; -fx-background-color: #f4f6f9;">
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
-    <Label text="Payment &amp; Transaction Details" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+<?import javafx.geometry.Insets?>
 
-    <Label fx:id="totalTaxLabel" text="Total Tax Amount: Calculating..." style="-fx-font-size: 18;"/>
-    <Label fx:id="taxPercentageLabel" text="Tax Percentage: Calculating..." style="-fx-font-size: 16;"/>
-    <Label fx:id="taxDeductedLabel" text="Tax Deducted: Calculating..." style="-fx-font-size: 16;"/>
 
-    <Label text="Itemized Receipt:" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
 
-    <TableView fx:id="receiptTable" prefHeight="300">
-        <columns>
-            <TableColumn fx:id="descCol" text="Description" prefWidth="200"/>
-            <TableColumn fx:id="priceCol" text="Price (PKR)" prefWidth="120"/>
-            <TableColumn fx:id="qtyCol" text="Quantity" prefWidth="100"/>
-            <TableColumn fx:id="taxCol" text="Tax (PKR)" prefWidth="120"/>
-        </columns>
-    </TableView>
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Frontend.PaymentTransactionController"
+            style="-fx-background-color: #8cb3ecff;">
 
-    <Button text="Pay Tax Now" onAction="#payTax"
-            style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-padding: 10 30;"/>
+    <!-- ===== TOP BAR ===== -->
+    <top>
+        <HBox spacing="15" style="-fx-background-color: white;">
+    <padding>
+        <Insets top="15" right="15" bottom="15" left="15"/>
+    </padding>
 
-    <Button text="Back to Dashboard" onAction="#handleBack"
-            style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-padding: 10 30;"/>
-</VBox>
+            <Label text="Payment &amp; Transaction Details"
+                   style="-fx-font-size: 22; -fx-font-weight: bold;" />
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <Button text="Pay Tax Now"
+                    onAction="#payTax"
+                    style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-padding: 8 20;" />
+
+            <Button text="Back to Dashboard"
+                    onAction="#handleBack"
+                    style="-fx-background-color: #fded0cff; -fx-text-fill: white; -fx-padding: 8 20;" />
+        </HBox>
+    </top>
+
+    <!-- ===== CENTER TABLE ===== -->
+    <center>
+       <VBox spacing="10" style="-fx-padding: 20;">
+
+            <Label text="Itemized Receipt"
+                   style="-fx-font-size: 16; -fx-font-weight: bold;" />
+
+            <TableView fx:id="receiptTable" prefHeight="350">
+                <columns>
+                    <TableColumn fx:id="descCol" text="Description" prefWidth="260"/>
+                    <TableColumn fx:id="priceCol" text="Price (PKR)" prefWidth="140"/>
+                    <TableColumn fx:id="qtyCol" text="Quantity" prefWidth="100"/>
+                    <TableColumn fx:id="taxCol" text="Tax (PKR)" prefWidth="140"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+
+    <!-- ===== RIGHT SUMMARY PANEL ===== -->
+    <right>
+        <VBox spacing="15"
+      style="-fx-padding: 20; -fx-background-color: white; -fx-border-color: #ddd;">
+
+            <Label text="Tax Summary"
+                   style="-fx-font-size: 16; -fx-font-weight: bold;" />
+
+            <Label fx:id="totalTaxLabel"
+                   text="Total Tax Amount: 0.00 PKR"
+                   style="-fx-font-size: 14;" />
+
+            <Label fx:id="taxPercentageLabel"
+                   text="Tax Percentage: 17%"
+                   style="-fx-font-size: 14;" />
+
+            <Label fx:id="taxDeductedLabel"
+                   text="Tax Deducted: 0.00 PKR"
+                   style="-fx-font-size: 14;" />
+        </VBox>
+    </right>
+
+</BorderPane>

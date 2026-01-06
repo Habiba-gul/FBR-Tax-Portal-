@@ -13,70 +13,100 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/21" 
-            xmlns:fx="http://javafx.com/fxml/1" 
+<AnchorPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="Frontend.RegisterController"
             style="-fx-background-color: linear-gradient(to bottom right, #004e92, #000428);">
 
     <children>
-        <VBox alignment="CENTER" prefHeight="600.0" prefWidth="450.0" spacing="12.0" 
-              style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 40;" 
-              AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="175.0" AnchorPane.rightAnchor="175.0" AnchorPane.topAnchor="20.0">
-            
+        <VBox alignment="CENTER"
+              prefHeight="600.0"
+              prefWidth="450.0"
+              spacing="12.0"
+              style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 40;"
+              AnchorPane.topAnchor="20.0"
+              AnchorPane.bottomAnchor="20.0"
+              AnchorPane.leftAnchor="175.0"
+              AnchorPane.rightAnchor="175.0">
+
             <effect>
-                <DropShadow color="#00000040" radius="15" spread="0.2" />
+                <DropShadow color="#00000040" radius="15" spread="0.2"/>
             </effect>
 
             <children>
-                <ImageView fitHeight="80.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true">
+                <!-- Logo -->
+                <ImageView fitHeight="80" fitWidth="150" preserveRatio="true">
                     <image>
-                        <Image url="@fbrLogo.png" />
+                        <Image url="@fbrLogo.png"/>
                     </image>
                 </ImageView>
 
+                <!-- Title -->
                 <Label text="New Account Registration" textFill="#004e92">
                     <font>
-                        <Font name="Arial Bold" size="20.0" />
+                        <Font name="Arial Bold" size="20"/>
                     </font>
                 </Label>
-                
+
                 <Label text="Please fill in your details below" textFill="#7a7a7a">
                     <font>
-                        <Font name="Arial" size="13.0" />
+                        <Font size="13"/>
                     </font>
-                    <VBox.margin>
-                        <Insets bottom="5.0" top="-5.0" />
-                    </VBox.margin>
                 </Label>
 
-                <VBox spacing="10.0">
+                <!-- Input Fields -->
+                <VBox spacing="10">
                     <children>
-                        <TextField fx:id="cnicField" promptText="CNIC / Registration No" style="-fx-background-color: #f0f2f5; -fx-border-color: #d1d1d1; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10;" />
-                        <TextField fx:id="nameField" promptText="Full Name" style="-fx-background-color: #f0f2f5; -fx-border-color: #d1d1d1; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10;" />
-                        <TextField fx:id="serviceProviderField" promptText="Current Service Provider" style="-fx-background-color: #f0f2f5; -fx-border-color: #d1d1d1; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10;" />
-                        <TextField fx:id="cellNumberField" promptText="Cell Number (e.g., 03XX-XXXXXXX)" style="-fx-background-color: #f0f2f5; -fx-border-color: #d1d1d1; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10;" />
-                        <TextField fx:id="emailField" promptText="Email Address" style="-fx-background-color: #f0f2f5; -fx-border-color: #d1d1d1; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10;" />
-                        <PasswordField fx:id="passwordField" promptText="Password" style="-fx-background-color: #f0f2f5; -fx-border-color: #d1d1d1; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10;" />
-                        <PasswordField fx:id="confirmPasswordField" promptText="Confirm Password" style="-fx-background-color: #f0f2f5; -fx-border-color: #d1d1d1; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10;" />
+
+                        <TextField fx:id="cnicField"
+                                   promptText="CNIC (xxxxx-xxxxxxx-x)"
+                                   style="-fx-background-color:#f0f2f5; -fx-border-color:#d1d1d1; -fx-border-radius:5; -fx-background-radius:5; -fx-padding:10;"/>
+
+                        <TextField fx:id="nameField"
+                                   promptText="Full Name (as per CNIC)"
+                                   style="-fx-background-color:#f0f2f5; -fx-border-color:#d1d1d1; -fx-border-radius:5; -fx-background-radius:5; -fx-padding:10;"/>
+
+                        <TextField fx:id="serviceProviderField"
+                                   promptText="Service Provider (Govt / Private / Business)"
+                                   style="-fx-background-color:#f0f2f5; -fx-border-color:#d1d1d1; -fx-border-radius:5; -fx-background-radius:5; -fx-padding:10;"/>
+
+                        <TextField fx:id="cellNumberField"
+                                   promptText="Mobile Number (03xx-xxxxxxx)"
+                                   style="-fx-background-color:#f0f2f5; -fx-border-color:#d1d1d1; -fx-border-radius:5; -fx-background-radius:5; -fx-padding:10;"/>
+
+                        <TextField fx:id="emailField"
+                                   promptText="Email Address (example@email.com)"
+                                   style="-fx-background-color:#f0f2f5; -fx-border-color:#d1d1d1; -fx-border-radius:5; -fx-background-radius:5; -fx-padding:10;"/>
+
+                        <PasswordField fx:id="passwordField"
+                                       promptText="Password (min 8 characters)"
+                                       style="-fx-background-color:#f0f2f5; -fx-border-color:#d1d1d1; -fx-border-radius:5; -fx-background-radius:5; -fx-padding:10;"/>
+
+                        <PasswordField fx:id="confirmPasswordField"
+                                       promptText="Re-enter Password"
+                                       style="-fx-background-color:#f0f2f5; -fx-border-color:#d1d1d1; -fx-border-radius:5; -fx-background-radius:5; -fx-padding:10;"/>
                     </children>
-                    <VBox.margin>
-                        <Insets top="5.0" />
-                    </VBox.margin>
                 </VBox>
 
-                <Button fx:id="registerButton" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleRegistration" text="Complete Registration" textFill="WHITE" 
-                        style="-fx-background-color: #4CAF50; -fx-background-radius: 5; -fx-font-weight: bold; -fx-cursor: hand;">
-                    <font>
-                        <Font size="14.0" />
-                    </font>
+                <!-- Register Button -->
+                <Button fx:id="registerButton"
+                        text="Complete Registration"
+                        maxWidth="Infinity"
+                        onAction="#handleRegistration"
+                        textFill="WHITE"
+                        style="-fx-background-color:#4CAF50; -fx-font-weight:bold; -fx-background-radius:5;">
                     <padding>
-                        <Insets bottom="10.0" top="10.0" />
+                        <Insets top="10" bottom="10"/>
                     </padding>
                 </Button>
 
-                <HBox alignment="CENTER" spacing="5.0">
-                    <Label text="Already have an account?" textFill="#7a7a7a" />
-                    <Button fx:id="backToLoginButton" text="Sign In" onAction="#handleBackToLogin" style="-fx-background-color: transparent; -fx-text-fill: #004e92; -fx-font-weight: bold; -fx-cursor: hand;" />
+                <!-- Back to Login -->
+                <HBox alignment="CENTER" spacing="5">
+                    <Label text="Already have an account?" textFill="#7a7a7a"/>
+                    <Button fx:id="backToLoginButton"
+                            text="Sign In"
+                            onAction="#handleBackToLogin"
+                            style="-fx-background-color:transparent; -fx-text-fill:#004e92; -fx-font-weight:bold;"/>
                 </HBox>
 
             </children>

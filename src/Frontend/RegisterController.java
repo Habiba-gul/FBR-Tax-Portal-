@@ -1,18 +1,17 @@
 package Frontend;
 
-import Backend.UserDAO;
-import javafx.event.ActionEvent;
+import Backend.DBconnection;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import javafx.scene.Scene;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+
+import java.sql.*;
 
 public class RegisterController {
 
-    // Ye sab fields ke naam exactly fxml ke fx:id se match karne chahiye
     @FXML private TextField cnicField;
     @FXML private TextField nameField;
     @FXML private TextField serviceProviderField;
@@ -21,64 +20,108 @@ public class RegisterController {
     @FXML private PasswordField passwordField;
     @FXML private PasswordField confirmPasswordField;
 
+    // ================= REGISTER BUTTON =================
     @FXML
-    private void handleRegistration(ActionEvent event) {
-        // Get values
-        String cnic = cnicField.getText().trim();
-        String name = nameField.getText().trim();
-        String service = serviceProviderField.getText().trim();
-        String phone = cellNumberField.getText().trim();
-        String email = emailField.getText().trim();
-        String pass = passwordField.getText();
+    private void handleRegistration() {
+
+        String cnic = cnicField.getText();
+        String name = nameField.getText();
+        String phone = cellNumberField.getText();
+        String email = emailField.getText();
+        String password = passwordField.getText();
         String confirm = confirmPasswordField.getText();
 
-        // Basic validation
-        if (cnic.isEmpty() || name.isEmpty() || phone.isEmpty() || email.isEmpty() || pass.isEmpty()) {
-            showAlert("Error", "All fields are required!");
-            return;
-        }
-        if (!pass.equals(confirm)) {
-            showAlert("Error", "Passwords do not match!");
+        if (cnic.isEmpty() || name.isEmpty() || phone.isEmpty()
+                || email.isEmpty() || password.isEmpty()) {
+            showAlert("Error", "All fields are required");
             return;
         }
 
-        
-        // Save to database
-        boolean success = UserDAO.registerUser(name, cnic, email, phone, pass);
-
-        if (success) {
-            showAlert("Success!", "Registration completed!\nYou can now login with your CNIC and password.");
-            goToLogin(event);  // Back to login screen
-        } else {
-            showAlert("Failed", "Registration failed!\nCNIC may already exist or database error.");
+        if (!password.equals(confirm)) {
+            showAlert("Error", "Passwords do not match");
+            return;
         }
-        
+
+        try (Connection conn = DBconnection.getConnection()) {
+
+            // 1️⃣ Insert user
+            String userSQL =
+                    "INSERT INTO users (name, cnic, email, phone, password, role) " +
+                    "VALUES (?, ?, ?, ?, ?, 'USER')";
+
+            PreparedStatement ps = conn.prepareStatement(
+                    userSQL, Statement.RETURN_GENERATED_KEYS);
+
+            ps.setString(1, name);
+            ps.setString(2, cnic);
+            ps.setString(3, email);
+            ps.setString(4, phone);
+            ps.setString(5, password);
+            ps.executeUpdate();
+
+            // 2️⃣ Get generated user ID
+            ResultSet rs = ps.getGeneratedKeys();
+            rs.next();
+            int userId = rs.getInt(1);
+
+            // 3️⃣ Create taxpayer profile
+            String profileSQL =
+                    "INSERT INTO taxpayer_profile (user_id) VALUES (?)";
+
+            PreparedStatement ps2 = conn.prepareStatement(profileSQL);
+            ps2.setInt(1, userId);
+            ps2.executeUpdate();
+
+            showAlert("Success", "Registration completed successfully!");
+
+            clearFields();
+
+            // 4️⃣ Navigate to Login screen automatically
+            navigateToLogin();
+
+        } catch (SQLIntegrityConstraintViolationException e) {
+            showAlert("Error", "CNIC already exists!");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Error", "Database error!");
+        }
     }
 
+    // ================= BACK TO LOGIN =================
     @FXML
-    private void handleBackToLogin(ActionEvent event) {
-        goToLogin(event);
+    private void handleBackToLogin() {
+        navigateToLogin();
     }
 
-    private void goToLogin(ActionEvent event) {
+    // ================= NAVIGATION =================
+    private void navigateToLogin() {
         try {
-            Parent loginPage = FXMLLoader.load(getClass().getResource("Login.fxml"));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(loginPage));
-            stage.setTitle("FBR Tax Portal - Login");
+            Parent root = FXMLLoader.load(getClass().getResource("Login.fxml"));
+            Stage stage = (Stage) cnicField.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Login");
             stage.centerOnScreen();
-            stage.show();
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert("Error", "Cannot go back to login.");
         }
     }
 
-    private void showAlert(String title, String message) {
+    // ================= HELPERS =================
+    private void clearFields() {
+        cnicField.clear();
+        nameField.clear();
+        serviceProviderField.clear();
+        cellNumberField.clear();
+        emailField.clear();
+        passwordField.clear();
+        confirmPasswordField.clear();
+    }
+
+    private void showAlert(String title, String msg) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
-        alert.setContentText(message);
+        alert.setContentText(msg);
         alert.showAndWait();
     }
 }
