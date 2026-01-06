@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Frontend.TaxHistoryController" spacing="15" alignment="TOP_CENTER"
+      style="-fx-padding: 20; -fx-background-color: #f4f6f9;">
+
+    <Label text="Tax Payment History" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+
+    <TableView fx:id="historyTable" prefHeight="200">
+        <columns>
+            <TableColumn fx:id="idCol" text="Entry ID" prefWidth="100"/>
+            <TableColumn fx:id="dateCol" text="Payment Date" prefWidth="200"/>
+            <TableColumn fx:id="totalCol" text="Total Tax (PKR)" prefWidth="150"/>
+        </columns>
+    </TableView>
+
+    <Label text="Selected Payment Details:" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+
+    <TableView fx:id="detailsTable" prefHeight="200">
+        <columns>
+            <TableColumn fx:id="descDetailCol" text="Description" prefWidth="200"/>
+            <TableColumn fx:id="priceDetailCol" text="Price (PKR)" prefWidth="100"/>
+            <TableColumn fx:id="qtyDetailCol" text="Quantity" prefWidth="80"/>
+            <TableColumn fx:id="taxDetailCol" text="Tax (PKR)" prefWidth="100"/>
+        </columns>
+    </TableView>
+
+    <Button text="Back to Dashboard" onAction="#handleBack" style="-fx-background-color: #6c757d; -fx-text-fill: white;"/>
+</VBox>

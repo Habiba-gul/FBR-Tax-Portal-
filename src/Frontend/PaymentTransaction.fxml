@@ -3,11 +3,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
-
-<?import javafx.geometry.Insets?>
-
-
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
@@ -17,9 +12,9 @@
     <!-- ===== TOP BAR ===== -->
     <top>
         <HBox spacing="15" style="-fx-background-color: white;">
-    <padding>
-        <Insets top="15" right="15" bottom="15" left="15"/>
-    </padding>
+            <padding>
+                <Insets top="15" right="15" bottom="15" left="15"/>
+            </padding>
 
             <Label text="Payment &amp; Transaction Details"
                    style="-fx-font-size: 22; -fx-font-weight: bold;" />
@@ -27,7 +22,7 @@
             <Region HBox.hgrow="ALWAYS"/>
 
             <Button text="Pay Tax Now"
-                    onAction="#payTax"
+                    onAction="#handlePay"
                     style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-padding: 8 20;" />
 
             <Button text="Back to Dashboard"
@@ -57,7 +52,7 @@
     <!-- ===== RIGHT SUMMARY PANEL ===== -->
     <right>
         <VBox spacing="15"
-      style="-fx-padding: 20; -fx-background-color: white; -fx-border-color: #ddd;">
+              style="-fx-padding: 20; -fx-background-color: white; -fx-border-color: #ddd;">
 
             <Label text="Tax Summary"
                    style="-fx-font-size: 16; -fx-font-weight: bold;" />

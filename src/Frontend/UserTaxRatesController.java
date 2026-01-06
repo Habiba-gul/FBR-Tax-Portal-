@@ -9,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;  // This import was missing!
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
@@ -27,25 +28,23 @@ public class UserTaxRatesController {
     @FXML
     public void initialize() {
         categoryCombo.getItems().addAll("Salary", "Property", "Vehicles", "GST");
-        categoryCombo.setOnAction(e -> updateSubCategories());
 
-        minCol.setCellValueFactory(cell -> new javafx.beans.property.SimpleDoubleProperty(cell.getValue().getMinAmount()).asObject());
-        maxCol.setCellValueFactory(cell -> new javafx.beans.property.SimpleDoubleProperty(cell.getValue().getMaxAmount()).asObject());
-        rateCol.setCellValueFactory(cell -> new javafx.beans.property.SimpleDoubleProperty(cell.getValue().getRate()).asObject());
-    }
+        minCol.setCellValueFactory(new PropertyValueFactory<>("minAmount"));
+        maxCol.setCellValueFactory(new PropertyValueFactory<>("maxAmount"));
+        rateCol.setCellValueFactory(new PropertyValueFactory<>("rate"));
 
-    private void updateSubCategories() {
-        String cat = categoryCombo.getValue();
-        subCategoryCombo.getItems().clear();
-        subCategoryBox.setVisible(true);
+        categoryCombo.valueProperty().addListener((obs, old, val) -> {
+            subCategoryBox.setVisible(!"Vehicles".equals(val) && !"GST".equals(val));
+            subCategoryCombo.getItems().clear();
+            if ("Salary".equals(val)) {
+                subCategoryCombo.getItems().addAll("Government", "Private", "Business");
+            } else if ("Property".equals(val)) {
+                subCategoryCombo.getItems().addAll("Residential", "Commercial");
+            }
+            rangesTable.getItems().clear();
+        });
 
-        if ("Salary".equals(cat)) {
-            subCategoryCombo.getItems().addAll("Government", "Private", "Business");
-        } else if ("Property".equals(cat)) {
-            subCategoryCombo.getItems().addAll("Residential", "Commercial");
-        } else {
-            subCategoryBox.setVisible(false);
-        }
+        subCategoryCombo.valueProperty().addListener((obs, old, val) -> rangesTable.getItems().clear());
     }
 
     @FXML
@@ -53,11 +52,29 @@ public class UserTaxRatesController {
         String category = categoryCombo.getValue();
         String sub = subCategoryCombo.getValue();
 
+        if (category == null) return;
+
         String dbCategory;
         if ("Vehicles".equals(category) || "GST".equals(category)) {
             dbCategory = category.toLowerCase();
         } else {
-            dbCategory = category.toLowerCase() + "_" + sub.toLowerCase();
+            if ("Salary".equals(category)) {
+                switch (sub.toLowerCase()) {
+                    case "government":
+                        dbCategory = "salary_gov";
+                        break;
+                    case "private":
+                        dbCategory = "salary_private_company";
+                        break;
+                    case "business":
+                        dbCategory = "salary_business";
+                        break;
+                    default:
+                        dbCategory = "";
+                }
+            } else {
+                dbCategory = category.toLowerCase() + "_" + sub.toLowerCase();
+            }
         }
 
         ObservableList<TaxRange> ranges = service.getRanges(dbCategory);

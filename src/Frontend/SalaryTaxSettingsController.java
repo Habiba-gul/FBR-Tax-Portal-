@@ -34,46 +34,65 @@ public class SalaryTaxSettingsController {
 
     @FXML
     public void initialize() {
-        setupEditableTable(govTable, govMinCol, govMaxCol, govRateCol, govActionCol);
-        setupEditableTable(privateTable, privateMinCol, privateMaxCol, privateRateCol, privateActionCol);
-        setupEditableTable(businessTable, businessMinCol, businessMaxCol, businessRateCol, businessActionCol);
-
+        setupTable(govTable, govMinCol, govMaxCol, govRateCol, govActionCol, "salary_gov");
+        setupTable(privateTable, privateMinCol, privateMaxCol, privateRateCol, privateActionCol, "salary_private_company");
+        setupTable(businessTable, businessMinCol, businessMaxCol, businessRateCol, businessActionCol, "salary_business");
         refreshTables();
     }
 
-    private void setupEditableTable(TableView<TaxRange> table, TableColumn<TaxRange, Double> minCol, TableColumn<TaxRange, Double> maxCol, TableColumn<TaxRange, Double> rateCol, TableColumn<TaxRange, Void> actionCol) {
+    private void setupTable(TableView<TaxRange> table, TableColumn<TaxRange, Double> minCol,
+                            TableColumn<TaxRange, Double> maxCol, TableColumn<TaxRange, Double> rateCol,
+                            TableColumn<TaxRange, Void> actionCol, String category) {
         minCol.setCellValueFactory(new PropertyValueFactory<>("minAmount"));
         maxCol.setCellValueFactory(new PropertyValueFactory<>("maxAmount"));
         rateCol.setCellValueFactory(new PropertyValueFactory<>("rate"));
 
-        // Make columns editable
         minCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
         maxCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
         rateCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
 
-        // Commit edits to the model
         minCol.setOnEditCommit(e -> {
-            e.getRowValue().setMinAmount(e.getNewValue());
-            service.updateRange(e.getRowValue());  // Save immediately or on "Save All"
-        });
-        maxCol.setOnEditCommit(e -> {
-            e.getRowValue().setMaxAmount(e.getNewValue());
-            service.updateRange(e.getRowValue());
-        });
-        rateCol.setOnEditCommit(e -> {
-            e.getRowValue().setRate(e.getNewValue());
-            service.updateRange(e.getRowValue());
+            TaxRange r = e.getRowValue();
+            double oldVal = r.getMinAmount();
+            r.setMinAmount(e.getNewValue());
+            if (r.getMinAmount() > r.getMaxAmount()) {
+                showAlert(Alert.AlertType.ERROR, "Invalid Input", "Min cannot be greater than Max. Reverting.");
+                r.setMinAmount(oldVal);
+                table.refresh();
+            }
         });
 
-        // Delete button
+        maxCol.setOnEditCommit(e -> {
+            TaxRange r = e.getRowValue();
+            double oldVal = r.getMaxAmount();
+            r.setMaxAmount(e.getNewValue());
+            if (r.getMinAmount() > r.getMaxAmount()) {
+                showAlert(Alert.AlertType.ERROR, "Invalid Input", "Max cannot be less than Min. Reverting.");
+                r.setMaxAmount(oldVal);
+                table.refresh();
+            }
+        });
+
+        rateCol.setOnEditCommit(e -> {
+            TaxRange r = e.getRowValue();
+            r.setRate(e.getNewValue());
+            // No DB update here - deferred to saveAll
+        });
+
         actionCol.setCellFactory(col -> new TableCell<>() {
             private final Button deleteBtn = new Button("Delete");
-
             {
-                deleteBtn.setOnAction(event -> {
+                deleteBtn.setOnAction(evt -> {
                     TaxRange range = getTableView().getItems().get(getIndex());
-                    service.deleteRange(range);
-                    refreshTables();
+                    Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Delete this range?");
+                    if (confirm.showAndWait().get() == ButtonType.OK) {
+                        boolean success = service.deleteRange(range);
+                        if (success) {
+                            getTableView().getItems().remove(range);
+                        } else {
+                            showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete range from database.");
+                        }
+                    }
                 });
             }
 
@@ -83,41 +102,72 @@ public class SalaryTaxSettingsController {
                 setGraphic(empty ? null : deleteBtn);
             }
         });
+
+        table.setItems(service.getRanges(category));
     }
 
     private void refreshTables() {
         govTable.setItems(service.getRanges("salary_gov"));
-        privateTable.setItems(service.getRanges("salary_private"));
+        privateTable.setItems(service.getRanges("salary_private_company"));
         businessTable.setItems(service.getRanges("salary_business"));
-
-        enforceMinRanges("salary_gov", govTable);
-        enforceMinRanges("salary_private", privateTable);
-        enforceMinRanges("salary_business", businessTable);
-    }
-
-    private void enforceMinRanges(String category, TableView<TaxRange> table) {
-        if (table.getItems().size() < 2) {
-            service.addRange(category, 0, 500000, 5.0);
-            service.addRange(category, 500001, Double.MAX_VALUE, 15.0);
-            refreshTables();
-        }
-    }
-
-    @FXML private void addGovRange(ActionEvent event) { addRange("salary_gov"); }
-    @FXML private void addPrivateRange(ActionEvent event) { addRange("salary_private"); }
-    @FXML private void addBusinessRange(ActionEvent event) { addRange("salary_business"); }
-
-    private void addRange(String category) {
-        service.addRange(category, 0, 0, 0);
-        refreshTables();
+        govTable.refresh();
+        privateTable.refresh();
+        businessTable.refresh();
     }
 
     @FXML
-    private void saveAll(ActionEvent event) {
-        // Optional: extra save if needed, but edits are already committed
-        new Alert(Alert.AlertType.INFORMATION, "All changes saved to database!").show();
-        refreshTables();
+    private void addGovRange(ActionEvent event) { addRange("salary_gov"); }
+
+    @FXML
+    private void addPrivateRange(ActionEvent event) { addRange("salary_private_company"); }
+
+    @FXML
+    private void addBusinessRange(ActionEvent event) { addRange("salary_business"); }
+
+    private void addRange(String category) {
+        boolean success = service.addRange(category, 0, 0, 0);
+        if (success) {
+            refreshTables();
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to add new range to database.");
+        }
     }
+
+    @FXML
+private void saveAll(ActionEvent event) {
+    boolean allSuccess = true;
+
+    // Government
+    for (TaxRange r : govTable.getItems()) {
+        if (!service.updateRange(r)) {
+            allSuccess = false;
+            System.out.println("Failed to update Salary Government range ID: " + r.getId());
+        }
+    }
+
+    // Private
+    for (TaxRange r : privateTable.getItems()) {
+        if (!service.updateRange(r)) {
+            allSuccess = false;
+            System.out.println("Failed to update Salary Private range ID: " + r.getId());
+        }
+    }
+
+    // Business
+    for (TaxRange r : businessTable.getItems()) {
+        if (!service.updateRange(r)) {
+            allSuccess = false;
+            System.out.println("Failed to update Salary Business range ID: " + r.getId());
+        }
+    }
+
+    if (allSuccess) {
+        showAlert(Alert.AlertType.INFORMATION, "Success", "All salary tax ranges saved successfully!");
+        refreshTables();
+    } else {
+        showAlert(Alert.AlertType.ERROR, "Partial Failure", "Some salary tax ranges failed to save. Check console for details.");
+    }
+}
 
     @FXML
     private void handleBack(ActionEvent event) {
@@ -130,5 +180,13 @@ public class SalaryTaxSettingsController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

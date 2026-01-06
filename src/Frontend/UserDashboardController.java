@@ -6,6 +6,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
@@ -29,76 +30,62 @@ public class UserDashboardController {
 
     @FXML
     private void handleTaxCalculationServices(MouseEvent event) {
-        switchScene(event, "TaxCalculation.fxml", "FBR Tax Portal - Tax Calculation Services", 1000, 800);
+        switchScene(event, "TaxCalculation.fxml", "FBR Tax Portal - Tax Calculation", 900, 700);
     }
 
     @FXML
-    private void handlePaymentAndTransaction(MouseEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("PaymentTransaction.fxml"));
-            Parent root = loader.load();
-            PaymentTransactionController ctrl = loader.getController();
-
-            // Get the calculated tax from SystemManager
-            double totalTax = SystemManager.getTotalTax();
-            double percentage = 17.0;  // You can make this dynamic later
-            double deducted = totalTax * 0.1;  // Example deduction
-
-            ctrl.setTaxDetails(totalTax, percentage, deducted);
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, 600, 400));
-            stage.setTitle("Payment & Transaction Details");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void handlePaymentTransactions(MouseEvent event) {
+        switchScene(event, "PaymentTransaction.fxml", "FBR Tax Portal - Payment & Transactions", 900, 700);
     }
 
     @FXML
-    private void handleHistoryAndRecords(MouseEvent event) {
-        System.out.println("History & Records Clicked");
-        // Add your history screen later
+    private void handleTaxFiling(MouseEvent event) {
+        switchScene(event, "IncomeTaxForm.fxml", "FBR Tax Portal - Tax Filing", 1000, 750);
     }
 
     @FXML
-    private void handleAlertsAndNotifications(MouseEvent event) {
-        System.out.println("Alerts & Notifications Clicked");
-        // Add alerts screen later
+    private void handleTaxReports(MouseEvent event) {
+        switchScene(event, "TaxHistory.fxml", "FBR Tax Portal - Tax History & Reports", 800, 600);
+    }
+
+    @FXML
+    private void handleTaxLaws(MouseEvent event) {
+        // Placeholder: Add TaxLaws.fxml if needed
+        switchScene(event, "TaxLaws.fxml", "FBR Tax Portal - Tax Laws", 800, 600);
+    }
+
+        @FXML
+    private void handleAlerts(MouseEvent event) {
+        // Temporary placeholder - will implement later
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Coming Soon");
+        alert.setHeaderText(null);
+        alert.setContentText("Alerts & Notifications feature is under development.");
+        alert.showAndWait();
     }
 
     @FXML
     private void handleReportReadyData(MouseEvent event) {
-        System.out.println("Report Ready Data Clicked");
-        // Add report screen later
+        // Temporary placeholder - will implement later
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Coming Soon");
+        alert.setHeaderText(null);
+        alert.setContentText("Report-Ready Data feature is under development.");
+        alert.showAndWait();
     }
 
-    // --- Logout Functionality ---
-
-    @FXML
-    private void handleLogout(ActionEvent event) {
-        returnToLogin((Node) event.getSource());
-    }
+    // handleTaxReports is already in your controller (from previous code)
+    // It opens TaxHistory.fxml
 
     @FXML
     private void handleLogout(MouseEvent event) {
-        returnToLogin((Node) event.getSource());
-    }
-
-    private void returnToLogin(Node sourceNode) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));  // Note: small 'l' as per your file name
-            Parent root = loader.load();
-
-            Stage stage = (Stage) sourceNode.getScene().getWindow();
-            Scene scene = new Scene(root, 800, 600);
-
-            stage.setScene(scene);
-            stage.setTitle("FBR Tax Portal - Login");
-            stage.show();
-
-            // Clear session
             SystemManager.logout();
+            Parent root = FXMLLoader.load(getClass().getResource("Login.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("FBR Tax Portal - Login");
+            stage.centerOnScreen();
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("Failed to load login.fxml during logout.");

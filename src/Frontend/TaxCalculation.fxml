@@ -17,7 +17,7 @@
     <GridPane hgap="20" vgap="20" alignment="CENTER">
         <Button text="Salary" onAction="#addSalaryForm" style="-fx-padding: 15 30; -fx-background-color: #4e54c8; -fx-text-fill: white;" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
         <Button text="Property" onAction="#addPropertyForm" style="-fx-padding: 15 30; -fx-background-color: #4e54c8; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-        <Button text="Vehicles" onAction="#addVehiclesForm" style="-fx-padding: 15 30; -fx-background-color: #4e54c8; -fx-text-fill: white;" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <Button text="Vehicles" onAction="#addVehicleForm" style="-fx-padding: 15 30; -fx-background-color: #4e54c8; -fx-text-fill: white;" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
         <Button text="GST" onAction="#addGstForm" style="-fx-padding: 15 30; -fx-background-color: #4e54c8; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
     </GridPane>
 

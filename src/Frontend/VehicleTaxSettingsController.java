@@ -26,41 +26,56 @@ public class VehicleTaxSettingsController {
 
     @FXML
     public void initialize() {
-        setupEditableTable(vehicleTable, vehMinCol, vehMaxCol, vehRateCol, vehActionCol);
+        vehMinCol.setCellValueFactory(new PropertyValueFactory<>("minAmount"));
+        vehMaxCol.setCellValueFactory(new PropertyValueFactory<>("maxAmount"));
+        vehRateCol.setCellValueFactory(new PropertyValueFactory<>("rate"));
 
-        refreshTable();
-    }
+        vehMinCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        vehMaxCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        vehRateCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
 
-    private void setupEditableTable(TableView<TaxRange> table, TableColumn<TaxRange, Double> minCol, TableColumn<TaxRange, Double> maxCol, TableColumn<TaxRange, Double> rateCol, TableColumn<TaxRange, Void> actionCol) {
-        minCol.setCellValueFactory(new PropertyValueFactory<>("minAmount"));
-        maxCol.setCellValueFactory(new PropertyValueFactory<>("maxAmount"));
-        rateCol.setCellValueFactory(new PropertyValueFactory<>("rate"));
-
-        minCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-        maxCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-        rateCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-
-        minCol.setOnEditCommit(e -> {
-            e.getRowValue().setMinAmount(e.getNewValue());
-            service.updateRange(e.getRowValue());
-        });
-        maxCol.setOnEditCommit(e -> {
-            e.getRowValue().setMaxAmount(e.getNewValue());
-            service.updateRange(e.getRowValue());
-        });
-        rateCol.setOnEditCommit(e -> {
-            e.getRowValue().setRate(e.getNewValue());
-            service.updateRange(e.getRowValue());
+        vehMinCol.setOnEditCommit(e -> {
+            TaxRange r = e.getRowValue();
+            double oldVal = r.getMinAmount();
+            r.setMinAmount(e.getNewValue());
+            if (r.getMinAmount() > r.getMaxAmount()) {
+                showAlert(Alert.AlertType.ERROR, "Invalid Input", "Min cannot be greater than Max. Reverting.");
+                r.setMinAmount(oldVal);
+                vehicleTable.refresh();
+            }
         });
 
-        actionCol.setCellFactory(col -> new TableCell<>() {
+        vehMaxCol.setOnEditCommit(e -> {
+            TaxRange r = e.getRowValue();
+            double oldVal = r.getMaxAmount();
+            r.setMaxAmount(e.getNewValue());
+            if (r.getMinAmount() > r.getMaxAmount()) {
+                showAlert(Alert.AlertType.ERROR, "Invalid Input", "Max cannot be less than Min. Reverting.");
+                r.setMaxAmount(oldVal);
+                vehicleTable.refresh();
+            }
+        });
+
+        vehRateCol.setOnEditCommit(e -> {
+            TaxRange r = e.getRowValue();
+            r.setRate(e.getNewValue());
+            // No DB update here - deferred to saveAll
+        });
+
+        vehActionCol.setCellFactory(col -> new TableCell<>() {
             private final Button deleteBtn = new Button("Delete");
-
             {
-                deleteBtn.setOnAction(event -> {
+                deleteBtn.setOnAction(evt -> {
                     TaxRange range = getTableView().getItems().get(getIndex());
-                    service.deleteRange(range);
-                    refreshTable();
+                    Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Delete this range?");
+                    if (confirm.showAndWait().get() == ButtonType.OK) {
+                        boolean success = service.deleteRange(range);
+                        if (success) {
+                            getTableView().getItems().remove(range);
+                        } else {
+                            showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete range from database.");
+                        }
+                    }
                 });
             }
 
@@ -70,31 +85,42 @@ public class VehicleTaxSettingsController {
                 setGraphic(empty ? null : deleteBtn);
             }
         });
+
+        refreshTable();
     }
 
     private void refreshTable() {
         vehicleTable.setItems(service.getRanges("vehicle"));
-        enforceMinRanges();
-    }
-
-    private void enforceMinRanges() {
-        if (vehicleTable.getItems().size() < 2) {
-            service.addRange("vehicle", 0, 5000000, 2.0);
-            service.addRange("vehicle", 5000001, Double.MAX_VALUE, 5.0);
-            refreshTable();
-        }
+        vehicleTable.refresh();
     }
 
     @FXML private void addRange(ActionEvent event) {
-        service.addRange("vehicle", 0, 0, 0);
-        refreshTable();
+        boolean success = service.addRange("vehicle", 0, 0, 0);
+        if (success) {
+            refreshTable();
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to add new range to database.");
+        }
     }
 
     @FXML
-    private void saveAll(ActionEvent event) {
-        new Alert(Alert.AlertType.INFORMATION, "All changes saved!").show();
-        refreshTable();
+private void saveAll(ActionEvent event) {
+    boolean allSuccess = true;
+
+    for (TaxRange r : vehicleTable.getItems()) {
+        if (!service.updateRange(r)) {
+            allSuccess = false;
+            System.out.println("Failed to update Vehicle range ID: " + r.getId());
+        }
     }
+
+    if (allSuccess) {
+        showAlert(Alert.AlertType.INFORMATION, "Success", "All vehicle tax ranges saved successfully!");
+        refreshTable();
+    } else {
+        showAlert(Alert.AlertType.ERROR, "Partial Failure", "Some vehicle tax ranges failed to save. Check console.");
+    }
+}
 
     @FXML
     private void handleBack(ActionEvent event) {
@@ -107,5 +133,13 @@ public class VehicleTaxSettingsController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

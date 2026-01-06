@@ -1,5 +1,7 @@
 package Frontend;
 
+import Backend.PaymentHistoryDAO;
+import Backend.SystemManager;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -11,9 +13,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
-import Backend.SystemManager;
-
 import java.io.IOException;
+import java.util.List;
 
 public class PaymentTransactionController {
 
@@ -27,6 +28,8 @@ public class PaymentTransactionController {
     @FXML private TableColumn<ReceiptItem, Integer> qtyCol;
     @FXML private TableColumn<ReceiptItem, Double> taxCol;
 
+    private final PaymentHistoryDAO historyDAO = new PaymentHistoryDAO();
+
     @FXML
     public void initialize() {
         descCol.setCellValueFactory(new PropertyValueFactory<>("description"));
@@ -35,33 +38,42 @@ public class PaymentTransactionController {
         taxCol.setCellValueFactory(new PropertyValueFactory<>("tax"));
 
         double totalTax = SystemManager.getTotalTax();
-        double percentage = 17.0;
-        double deducted = totalTax * 0.1;
+        List<ReceiptItem> items = SystemManager.getReceiptItems();
 
+        receiptTable.setItems(FXCollections.observableArrayList(items));
         totalTaxLabel.setText(String.format("Total Tax Amount: %.2f PKR", totalTax));
-        taxPercentageLabel.setText(String.format("Tax Percentage: %.2f%%", percentage));
-        taxDeductedLabel.setText(String.format("Tax Deducted: %.2f PKR", deducted));
-
-        receiptTable.setItems(FXCollections.observableArrayList(SystemManager.getReceiptItems()));
-    }
-
-    // THIS METHOD WAS MISSING — ADD IT
-    public void setTaxDetails(double totalTax, double percentage, double deducted) {
-        totalTaxLabel.setText(String.format("Total Tax Amount: %.2f PKR", totalTax));
-        taxPercentageLabel.setText(String.format("Tax Percentage: %.2f%%", percentage));
-        taxDeductedLabel.setText(String.format("Tax Deducted: %.2f PKR", deducted));
+        taxPercentageLabel.setText("Tax Percentage: Varies by Category");  // Placeholder, can calculate avg if needed
+        taxDeductedLabel.setText(String.format("Tax Deducted: %.2f PKR", totalTax));  // Assuming full deduction
     }
 
     @FXML
-    private void payTax(ActionEvent event) {
+    private void handlePay(ActionEvent event) {
         double totalTax = SystemManager.getTotalTax();
         if (totalTax <= 0) {
             new Alert(Alert.AlertType.WARNING, "No tax to pay.").show();
             return;
         }
 
-        new Alert(Alert.AlertType.INFORMATION, String.format("Payment of %.2f PKR successful!", totalTax)).show();
-        SystemManager.clearReceipt();
+        // Build details string: "Desc:Price:Qty:Tax; Desc:Price:Qty:Tax; ..."
+        StringBuilder detailsBuilder = new StringBuilder();
+        for (ReceiptItem item : SystemManager.getReceiptItems()) {
+            detailsBuilder.append(item.getDescription()).append(":")
+                    .append(item.getPrice()).append(":")
+                    .append(item.getQuantity()).append(":")
+                    .append(item.getTax()).append(";");
+        }
+        String details = detailsBuilder.toString();
+
+        // Insert to history
+        int userId = SystemManager.getCurrentUser().getId();
+        boolean success = historyDAO.insertPayment(userId, totalTax, details);
+
+        if (success) {
+            new Alert(Alert.AlertType.INFORMATION, String.format("Payment of %.2f PKR successful! Recorded in history.", totalTax)).show();
+            SystemManager.clearReceipt();
+        } else {
+            new Alert(Alert.AlertType.ERROR, "Payment failed to record. Try again.").show();
+        }
     }
 
     @FXML

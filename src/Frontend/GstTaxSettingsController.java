@@ -26,41 +26,56 @@ public class GstTaxSettingsController {
 
     @FXML
     public void initialize() {
-        setupEditableTable(gstTable, gstMinCol, gstMaxCol, gstRateCol, gstActionCol);
+        gstMinCol.setCellValueFactory(new PropertyValueFactory<>("minAmount"));
+        gstMaxCol.setCellValueFactory(new PropertyValueFactory<>("maxAmount"));
+        gstRateCol.setCellValueFactory(new PropertyValueFactory<>("rate"));
 
-        refreshTable();
-    }
+        gstMinCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        gstMaxCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        gstRateCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
 
-    private void setupEditableTable(TableView<TaxRange> table, TableColumn<TaxRange, Double> minCol, TableColumn<TaxRange, Double> maxCol, TableColumn<TaxRange, Double> rateCol, TableColumn<TaxRange, Void> actionCol) {
-        minCol.setCellValueFactory(new PropertyValueFactory<>("minAmount"));
-        maxCol.setCellValueFactory(new PropertyValueFactory<>("maxAmount"));
-        rateCol.setCellValueFactory(new PropertyValueFactory<>("rate"));
-
-        minCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-        maxCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-        rateCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-
-        minCol.setOnEditCommit(e -> {
-            e.getRowValue().setMinAmount(e.getNewValue());
-            service.updateRange(e.getRowValue());
-        });
-        maxCol.setOnEditCommit(e -> {
-            e.getRowValue().setMaxAmount(e.getNewValue());
-            service.updateRange(e.getRowValue());
-        });
-        rateCol.setOnEditCommit(e -> {
-            e.getRowValue().setRate(e.getNewValue());
-            service.updateRange(e.getRowValue());
+        gstMinCol.setOnEditCommit(e -> {
+            TaxRange r = e.getRowValue();
+            double oldVal = r.getMinAmount();
+            r.setMinAmount(e.getNewValue());
+            if (r.getMinAmount() > r.getMaxAmount()) {
+                showAlert(Alert.AlertType.ERROR, "Invalid Input", "Min cannot be greater than Max. Reverting.");
+                r.setMinAmount(oldVal);
+                gstTable.refresh();
+            }
         });
 
-        actionCol.setCellFactory(col -> new TableCell<>() {
+        gstMaxCol.setOnEditCommit(e -> {
+            TaxRange r = e.getRowValue();
+            double oldVal = r.getMaxAmount();
+            r.setMaxAmount(e.getNewValue());
+            if (r.getMinAmount() > r.getMaxAmount()) {
+                showAlert(Alert.AlertType.ERROR, "Invalid Input", "Max cannot be less than Min. Reverting.");
+                r.setMaxAmount(oldVal);
+                gstTable.refresh();
+            }
+        });
+
+        gstRateCol.setOnEditCommit(e -> {
+            TaxRange r = e.getRowValue();
+            r.setRate(e.getNewValue());
+            // No DB update here - deferred to saveAll
+        });
+
+        gstActionCol.setCellFactory(col -> new TableCell<>() {
             private final Button deleteBtn = new Button("Delete");
-
             {
-                deleteBtn.setOnAction(event -> {
+                deleteBtn.setOnAction(evt -> {
                     TaxRange range = getTableView().getItems().get(getIndex());
-                    service.deleteRange(range);
-                    refreshTable();
+                    Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Delete this range?");
+                    if (confirm.showAndWait().get() == ButtonType.OK) {
+                        boolean success = service.deleteRange(range);
+                        if (success) {
+                            getTableView().getItems().remove(range);
+                        } else {
+                            showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete range from database.");
+                        }
+                    }
                 });
             }
 
@@ -70,31 +85,42 @@ public class GstTaxSettingsController {
                 setGraphic(empty ? null : deleteBtn);
             }
         });
+
+        refreshTable();
     }
 
     private void refreshTable() {
         gstTable.setItems(service.getRanges("gst"));
-        enforceMinRanges();
-    }
-
-    private void enforceMinRanges() {
-        if (gstTable.getItems().size() < 2) {
-            service.addRange("gst", 0, 5000000, 10.0);
-            service.addRange("gst", 5000001, Double.MAX_VALUE, 17.0);
-            refreshTable();
-        }
+        gstTable.refresh();
     }
 
     @FXML private void addRange(ActionEvent event) {
-        service.addRange("gst", 0, 0, 0);
-        refreshTable();
+        boolean success = service.addRange("gst", 0, 0, 0);
+        if (success) {
+            refreshTable();
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to add new range to database.");
+        }
     }
 
     @FXML
-    private void saveAll(ActionEvent event) {
-        new Alert(Alert.AlertType.INFORMATION, "All changes saved!").show();
-        refreshTable();
+private void saveAll(ActionEvent event) {
+    boolean allSuccess = true;
+
+    for (TaxRange r : gstTable.getItems()) {
+        if (!service.updateRange(r)) {
+            allSuccess = false;
+            System.out.println("Failed to update GST range ID: " + r.getId());
+        }
     }
+
+    if (allSuccess) {
+        showAlert(Alert.AlertType.INFORMATION, "Success", "All GST tax ranges saved successfully!");
+        refreshTable();
+    } else {
+        showAlert(Alert.AlertType.ERROR, "Partial Failure", "Some GST tax ranges failed to save. Check console.");
+    }
+}
 
     @FXML
     private void handleBack(ActionEvent event) {
@@ -107,5 +133,13 @@ public class GstTaxSettingsController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
