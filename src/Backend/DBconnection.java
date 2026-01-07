@@ -8,8 +8,8 @@ public class DBconnection {
 
     private static final String URL = "jdbc:mysql://localhost:3306/fbr_tax_portal";
     private static final String USER = "root";
-    //private static final String PASSWORD = "affankhan11";
-    private static final String PASSWORD = "Habiba_19";
+    private static final String PASSWORD = "affankhan11";
+    //private static final String PASSWORD = "Habiba_19";
 
     public static Connection getConnection() throws SQLException {
         try {

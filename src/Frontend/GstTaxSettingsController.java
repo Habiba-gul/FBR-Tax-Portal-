@@ -26,101 +26,75 @@ public class GstTaxSettingsController {
 
     @FXML
     public void initialize() {
-        gstMinCol.setCellValueFactory(new PropertyValueFactory<>("minAmount"));
-        gstMaxCol.setCellValueFactory(new PropertyValueFactory<>("maxAmount"));
-        gstRateCol.setCellValueFactory(new PropertyValueFactory<>("rate"));
+        setupTable(gstTable, gstMinCol, gstMaxCol, gstRateCol, gstActionCol, "gst");
+    }
 
-        gstMinCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-        gstMaxCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-        gstRateCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+    private void setupTable(TableView<TaxRange> table, TableColumn<TaxRange, Double> minCol, TableColumn<TaxRange, Double> maxCol, 
+                            TableColumn<TaxRange, Double> rateCol, TableColumn<TaxRange, Void> actionCol, String category) {
+        minCol.setCellValueFactory(new PropertyValueFactory<>("minAmount"));
+        minCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        minCol.setOnEditCommit(e -> e.getRowValue().setMinAmount(e.getNewValue()));
 
-        gstMinCol.setOnEditCommit(e -> {
-            TaxRange r = e.getRowValue();
-            double oldVal = r.getMinAmount();
-            r.setMinAmount(e.getNewValue());
-            if (r.getMinAmount() > r.getMaxAmount()) {
-                showAlert(Alert.AlertType.ERROR, "Invalid Input", "Min cannot be greater than Max. Reverting.");
-                r.setMinAmount(oldVal);
-                gstTable.refresh();
-            }
-        });
+        maxCol.setCellValueFactory(new PropertyValueFactory<>("maxAmount"));
+        maxCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        maxCol.setOnEditCommit(e -> e.getRowValue().setMaxAmount(e.getNewValue()));
 
-        gstMaxCol.setOnEditCommit(e -> {
-            TaxRange r = e.getRowValue();
-            double oldVal = r.getMaxAmount();
-            r.setMaxAmount(e.getNewValue());
-            if (r.getMinAmount() > r.getMaxAmount()) {
-                showAlert(Alert.AlertType.ERROR, "Invalid Input", "Max cannot be less than Min. Reverting.");
-                r.setMaxAmount(oldVal);
-                gstTable.refresh();
-            }
-        });
+        rateCol.setCellValueFactory(new PropertyValueFactory<>("rate"));
+        rateCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        rateCol.setOnEditCommit(e -> e.getRowValue().setRate(e.getNewValue()));
 
-        gstRateCol.setOnEditCommit(e -> {
-            TaxRange r = e.getRowValue();
-            r.setRate(e.getNewValue());
-            // No DB update here - deferred to saveAll
-        });
-
-        gstActionCol.setCellFactory(col -> new TableCell<>() {
+        actionCol.setCellFactory(col -> new TableCell<TaxRange, Void>() {
             private final Button deleteBtn = new Button("Delete");
-            {
-                deleteBtn.setOnAction(evt -> {
-                    TaxRange range = getTableView().getItems().get(getIndex());
-                    Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Delete this range?");
-                    if (confirm.showAndWait().get() == ButtonType.OK) {
-                        boolean success = service.deleteRange(range);
-                        if (success) {
-                            getTableView().getItems().remove(range);
-                        } else {
-                            showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete range from database.");
-                        }
-                    }
-                });
-            }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                setGraphic(empty ? null : deleteBtn);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    deleteBtn.setOnAction(event -> {
+                        TaxRange range = getTableView().getItems().get(getIndex());
+                        if (service.deleteRange(range)) {
+                            table.getItems().remove(range);
+                        } else {
+                            showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete range.");
+                        }
+                    });
+                    setGraphic(deleteBtn);
+                }
             }
         });
 
-        refreshTable();
+        table.setItems(service.getRanges(category));
     }
 
-    private void refreshTable() {
-        gstTable.setItems(service.getRanges("gst"));
-        gstTable.refresh();
-    }
-
-    @FXML private void addRange(ActionEvent event) {
-        boolean success = service.addRange("gst", 0, 0, 0);
-        if (success) {
-            refreshTable();
+    @FXML
+    private void addRange(ActionEvent event) {
+        if (service.addRange("gst", 0, 0, 0)) {
+            gstTable.setItems(service.getRanges("gst"));
         } else {
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to add new range to database.");
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to add new range.");
         }
     }
 
     @FXML
-private void saveAll(ActionEvent event) {
-    boolean allSuccess = true;
+    private void saveAll(ActionEvent event) {
+        int changes = saveTable(gstTable);
+        showAlert(Alert.AlertType.INFORMATION, "Success", "Saved " + changes + " changes to database.");
+    }
 
-    for (TaxRange r : gstTable.getItems()) {
-        if (!service.updateRange(r)) {
-            allSuccess = false;
-            System.out.println("Failed to update GST range ID: " + r.getId());
+    private int saveTable(TableView<TaxRange> table) {
+        int count = 0;
+        for (TaxRange range : table.getItems()) {
+            if (service.updateRange(range)) {
+                count++;
+                System.out.println("Updated range ID " + range.getId() + " in DB (GST)");
+            } else {
+                System.out.println("Failed to update range ID " + range.getId() + " (GST)");
+            }
         }
+        return count;
     }
-
-    if (allSuccess) {
-        showAlert(Alert.AlertType.INFORMATION, "Success", "All GST tax ranges saved successfully!");
-        refreshTable();
-    } else {
-        showAlert(Alert.AlertType.ERROR, "Partial Failure", "Some GST tax ranges failed to save. Check console.");
-    }
-}
 
     @FXML
     private void handleBack(ActionEvent event) {

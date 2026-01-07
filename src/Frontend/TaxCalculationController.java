@@ -28,29 +28,29 @@ public class TaxCalculationController {
         VBox form = new VBox(10);
         Label title = new Label("Salary Details");
         ComboBox<String> jobType = new ComboBox<>(FXCollections.observableArrayList("Government", "Private", "Business"));
-        jobType.setPromptText("Job Type");
         TextField salaryField = new TextField();
         salaryField.setPromptText("Annual Salary (PKR)");
         Button removeBtn = new Button("Remove");
-        removeBtn.setOnAction(e -> dynamicInputPane.getChildren().remove(form));
 
         form.getChildren().addAll(title, jobType, salaryField, removeBtn);
         dynamicInputPane.getChildren().add(form);
+
+        removeBtn.setOnAction(e -> dynamicInputPane.getChildren().remove(form));
     }
 
     @FXML
     private void addPropertyForm(ActionEvent event) {
         VBox form = new VBox(10);
         Label title = new Label("Property Details");
-        ComboBox<String> propType = new ComboBox<>(FXCollections.observableArrayList("Residential", "Commercial"));
-        propType.setPromptText("Property Type");
-        TextField valueField = new TextField();
-        valueField.setPromptText("Property Value (PKR)");
+        ComboBox<String> type = new ComboBox<>(FXCollections.observableArrayList("Residential", "Commercial"));
+        TextField priceField = new TextField();
+        priceField.setPromptText("Property Value (PKR)");
         Button removeBtn = new Button("Remove");
-        removeBtn.setOnAction(e -> dynamicInputPane.getChildren().remove(form));
 
-        form.getChildren().addAll(title, propType, valueField, removeBtn);
+        form.getChildren().addAll(title, type, priceField, removeBtn);
         dynamicInputPane.getChildren().add(form);
+
+        removeBtn.setOnAction(e -> dynamicInputPane.getChildren().remove(form));
     }
 
     @FXML
@@ -58,12 +58,13 @@ public class TaxCalculationController {
         VBox form = new VBox(10);
         Label title = new Label("Vehicle Details");
         TextField priceField = new TextField();
-        priceField.setPromptText("Vehicle Price (PKR)");
+        priceField.setPromptText("Vehicle Value (PKR)");
         Button removeBtn = new Button("Remove");
-        removeBtn.setOnAction(e -> dynamicInputPane.getChildren().remove(form));
 
         form.getChildren().addAll(title, priceField, removeBtn);
         dynamicInputPane.getChildren().add(form);
+
+        removeBtn.setOnAction(e -> dynamicInputPane.getChildren().remove(form));
     }
 
     @FXML
@@ -71,80 +72,65 @@ public class TaxCalculationController {
         VBox form = new VBox(10);
         Label title = new Label("GST Details");
         TextField amountField = new TextField();
-        amountField.setPromptText("Transaction Amount (PKR)");
+        amountField.setPromptText("Purchase Amount (PKR)");
         Button removeBtn = new Button("Remove");
-        removeBtn.setOnAction(e -> dynamicInputPane.getChildren().remove(form));
 
         form.getChildren().addAll(title, amountField, removeBtn);
         dynamicInputPane.getChildren().add(form);
+
+        removeBtn.setOnAction(e -> dynamicInputPane.getChildren().remove(form));
     }
 
     @FXML
     private void calculateTax(ActionEvent event) {
-        receiptItems.clear();
         double totalTax = 0.0;
-        boolean hasValidData = false;
+        receiptItems.clear();
 
         for (Node node : dynamicInputPane.getChildren()) {
             if (node instanceof VBox form) {
                 Label title = (Label) form.getChildren().get(0);
-                String type = title.getText();
+                String formType = title.getText().replace(" Details", "");
 
-                if (type.contains("Salary")) {
+                if (formType.equals("Salary")) {
                     ComboBox<String> jobType = (ComboBox<String>) form.getChildren().get(1);
                     TextField salaryField = (TextField) form.getChildren().get(2);
-                    try {
+                    if (jobType.getValue() != null && !salaryField.getText().isEmpty()) {
                         double salary = Double.parseDouble(salaryField.getText());
-                        if (salary > 0 && jobType.getValue() != null) {
-                            SalaryTaxCalculator calc = new SalaryTaxCalculator();
-                            double tax = calc.calculateTaxForCategory(jobType.getValue(), salary);
-                            receiptItems.add(new ReceiptItem("Salary (" + jobType.getValue() + ")", salary, 1, tax));
-                            totalTax += tax;
-                            hasValidData = true;
-                        }
-                    } catch (NumberFormatException ignored) {}
-                } else if (type.contains("Property")) {
-                    ComboBox<String> propType = (ComboBox<String>) form.getChildren().get(1);
-                    TextField valueField = (TextField) form.getChildren().get(2);
-                    try {
-                        double value = Double.parseDouble(valueField.getText());
-                        if (value > 0 && propType.getValue() != null) {
-                            PropertyTaxCalculator calc = new PropertyTaxCalculator();
-                            double tax = calc.calculateTaxForCategory(propType.getValue(), value);
-                            receiptItems.add(new ReceiptItem("Property (" + propType.getValue() + ")", value, 1, tax));
-                            totalTax += tax;
-                            hasValidData = true;
-                        }
-                    } catch (NumberFormatException ignored) {}
-                } else if (type.contains("Vehicle")) {
-                    TextField priceField = (TextField) form.getChildren().get(1);
-                    try {
+                        double tax = new SalaryTaxCalculator().calculateTaxForCategory(jobType.getValue(), salary);
+                        totalTax += tax;
+                        receiptItems.add(new ReceiptItem("Salary (" + jobType.getValue() + ")", salary, 1, tax));
+                    }
+                } else if (formType.equals("Property")) {
+                    ComboBox<String> type = (ComboBox<String>) form.getChildren().get(1);
+                    TextField priceField = (TextField) form.getChildren().get(2);
+                    if (type.getValue() != null && !priceField.getText().isEmpty()) {
                         double price = Double.parseDouble(priceField.getText());
-                        if (price > 0) {
-                            VehicleTaxCalculator calc = new VehicleTaxCalculator();
-                            double tax = calc.calculateTaxForCategory("", price);
-                            receiptItems.add(new ReceiptItem("Vehicle", price, 1, tax));
-                            totalTax += tax;
-                            hasValidData = true;
-                        }
-                    } catch (NumberFormatException ignored) {}
-                } else if (type.contains("GST")) {
+                        double tax = new PropertyTaxCalculator().calculateTaxForCategory(type.getValue(), price);
+                        System.out.println("Property tax calculated: " + tax + " for value " + price + " (" + type.getValue() + ")"); // Debug
+                        totalTax += tax;
+                        receiptItems.add(new ReceiptItem("Property (" + type.getValue() + ")", price, 1, tax));
+                    }
+                } else if (formType.equals("Vehicle")) {
+                    TextField priceField = (TextField) form.getChildren().get(1);
+                    if (!priceField.getText().isEmpty()) {
+                        double price = Double.parseDouble(priceField.getText());
+                        double tax = new VehicleTaxCalculator().calculateTaxForCategory("", price);
+                        totalTax += tax;
+                        receiptItems.add(new ReceiptItem("Vehicle", price, 1, tax));
+                    }
+                } else if (formType.equals("GST")) {
                     TextField amountField = (TextField) form.getChildren().get(1);
-                    try {
+                    if (!amountField.getText().isEmpty()) {
                         double amount = Double.parseDouble(amountField.getText());
-                        if (amount > 0) {
-                            GstTaxCalculator calc = new GstTaxCalculator();
-                            double tax = calc.calculateTaxForCategory("", amount);
-                            receiptItems.add(new ReceiptItem("GST Transaction", amount, 1, tax));
-                            totalTax += tax;
-                            hasValidData = true;
-                        }
-                    } catch (NumberFormatException ignored) {}
+                        double tax = new GstTaxCalculator().calculateTaxForCategory("", amount);
+                        totalTax += tax;
+                        receiptItems.add(new ReceiptItem("GST", amount, 1, tax));
+                    }
                 }
             }
         }
 
-        if (!hasValidData) {
+        if (receiptItems.isEmpty()) {
             new Alert(Alert.AlertType.WARNING, "No valid data entered.").show();
             return;
         }

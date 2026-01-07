@@ -1,6 +1,7 @@
 package Backend;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,35 +28,16 @@ public class UserDAO {
                 user.setRole(rs.getString("role"));
                 return user;
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public static boolean updateUser(UserInfo user) {
-        String sql = "UPDATE users SET name=?, dob=?, gender=?, address=?, email=?, phone=? WHERE cnic=?";
-        try (Connection con = DBconnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setString(1, user.getName());
-            ps.setDate(2, user.getDob() != null ? Date.valueOf(user.getDob()) : null);
-            ps.setString(3, user.getGender());
-            ps.setString(4, user.getAddress());
-            ps.setString(5, user.getEmail());
-            ps.setString(6, user.getPhone());
-            ps.setString(7, user.getCnic());
-
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public static List<UserInfo> getUnpaidUsers() {
+    public static List<UserInfo> getAllUsers() {
         List<UserInfo> list = new ArrayList<>();
-        String sql = "SELECT u.*, tp.status FROM users u JOIN taxpayer_profile tp ON u.id = tp.user_id WHERE tp.status='Unpaid'";
+        String sql = "SELECT * FROM users WHERE role = 'USER'";
         try (Connection con = DBconnection.getConnection();
              Statement stmt = con.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -68,7 +50,6 @@ public class UserDAO {
                 user.setEmail(rs.getString("email"));
                 user.setPhone(rs.getString("phone"));
                 user.setRole(rs.getString("role"));
-                user.setTaxPaid("Paid".equalsIgnoreCase(rs.getString("status")));
                 list.add(user);
             }
 
@@ -76,5 +57,60 @@ public class UserDAO {
             e.printStackTrace();
         }
         return list;
+    }
+
+    // NEW METHOD: Update user profile in the database
+    public static boolean updateUser(UserInfo user) {
+        String sql = "UPDATE users SET name = ?, dob = ?, gender = ?, address = ?, email = ?, phone = ? WHERE id = ?";
+        try (Connection con = DBconnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, user.getName());
+            if (user.getDob() != null) {
+                ps.setDate(2, java.sql.Date.valueOf(user.getDob()));
+            } else {
+                ps.setNull(2, java.sql.Types.DATE);
+            }
+            ps.setString(3, user.getGender());
+            ps.setString(4, user.getAddress());
+            ps.setString(5, user.getEmail());
+            ps.setString(6, user.getPhone());
+            ps.setInt(7, user.getId());
+
+            int rows = ps.executeUpdate();
+            return rows > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error updating user profile: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Existing methods for tax status and payment date (keep them)
+    public static boolean updateTaxStatus(int userId, String status) {
+        String sql = "UPDATE taxpayer_profile SET status = ? WHERE user_id = ?";
+        try (Connection con = DBconnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean updatePaymentDate(int userId, Date date) {
+        String sql = "UPDATE taxpayer_profile SET payment_date = ? WHERE user_id = ?";
+        try (Connection con = DBconnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setDate(1, date);
+            ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

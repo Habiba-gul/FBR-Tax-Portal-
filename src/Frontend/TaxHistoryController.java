@@ -3,6 +3,7 @@ package Frontend;
 import Backend.PaymentHistory;
 import Backend.PaymentHistoryDAO;
 import Backend.SystemManager;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -31,14 +32,12 @@ public class TaxHistoryController {
     @FXML private TableColumn<ReceiptItem, Integer> qtyDetailCol;
     @FXML private TableColumn<ReceiptItem, Double> taxDetailCol;
 
-    private final PaymentHistoryDAO historyDAO = new PaymentHistoryDAO();
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private PaymentHistoryDAO dao = new PaymentHistoryDAO();
 
     @FXML
     public void initialize() {
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
-        dateCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(
-                cellData.getValue().getPaymentDate().format(formatter)));
+        dateCol.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().getPaymentDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))));
         totalCol.setCellValueFactory(new PropertyValueFactory<>("totalTax"));
 
         descDetailCol.setCellValueFactory(new PropertyValueFactory<>("description"));
@@ -46,41 +45,47 @@ public class TaxHistoryController {
         qtyDetailCol.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         taxDetailCol.setCellValueFactory(new PropertyValueFactory<>("tax"));
 
-        // Load history
-        int userId = SystemManager.getCurrentUser().getId();
-        List<PaymentHistory> history = historyDAO.getHistoryByUser(userId);
-        historyTable.setItems(FXCollections.observableArrayList(history));
+        loadHistory();
 
-        // On selection, show details
-        historyTable.getSelectionModel().selectedItemProperty().addListener((obs, old, selected) -> {
-            if (selected != null) {
-                loadDetails(selected.getDetails());
-            } else {
-                detailsTable.getItems().clear();
+        // Listener for row selection to load details
+        historyTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                loadDetails(newSelection);
             }
         });
     }
 
-    private void loadDetails(String detailsStr) {
-        detailsTable.getItems().clear();
-        if (detailsStr == null || detailsStr.isEmpty()) return;
+    private void loadHistory() {
+        int userId = SystemManager.getCurrentUser().getId();
+        List<PaymentHistory> history = dao.getHistoryByUser(userId);
+        historyTable.setItems(FXCollections.observableArrayList(history));
+        System.out.println("Loaded " + history.size() + " history entries"); // Debug
+    }
 
-        // Parse details: "Desc:Price:Qty:Tax; Desc:Price:Qty:Tax; ..."
-        String[] items = detailsStr.split(";");
-        for (String item : items) {
-            if (item.trim().isEmpty()) continue;
-            String[] parts = item.split(":");
-            if (parts.length == 4) {
-                try {
-                    String desc = parts[0];
-                    double price = Double.parseDouble(parts[1]);
-                    int qty = Integer.parseInt(parts[2]);
-                    double tax = Double.parseDouble(parts[3]);
-                    detailsTable.getItems().add(new ReceiptItem(desc, price, qty, tax));
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
+    private void loadDetails(PaymentHistory history) {
+        detailsTable.getItems().clear();
+        String details = history.getDetails();
+        System.out.println("Loading details for ID " + history.getId() + ": " + details); // Debug
+        if (details != null && !details.isEmpty()) {
+            String[] items = details.split("\\|");
+            for (String item : items) {
+                if (item.trim().isEmpty()) continue;
+                String[] parts = item.split(",");
+                if (parts.length == 4) {
+                    try {
+                        String desc = parts[0].trim();
+                        double price = Double.parseDouble(parts[1].trim());
+                        int qty = Integer.parseInt(parts[2].trim());
+                        double tax = Double.parseDouble(parts[3].trim());
+                        detailsTable.getItems().add(new ReceiptItem(desc, price, qty, tax));
+                        System.out.println("Added detail: " + desc + ", tax=" + tax); // Debug
+                    } catch (NumberFormatException e) {
+                        System.err.println("Error parsing detail: " + item); // Debug error
+                    }
                 }
             }
+        } else {
+            System.out.println("No details available for this payment."); // Debug
         }
     }
 

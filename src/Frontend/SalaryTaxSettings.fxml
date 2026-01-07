@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Frontend.SalaryTaxSettingsController" spacing="15" alignment="TOP_CENTER"
       style="-fx-padding: 20; -fx-background-color: #f4f4f9;">
 
@@ -19,7 +21,7 @@
                         <TableColumn fx:id="govActionCol" text="Actions" prefWidth="100"/>
                     </columns>
                 </TableView>
-                <Button text="Add Range (Gov)" onAction="#addGovRange" style="-fx-background-color: #4e54c8; -fx-text-fill: white;"/>
+                <Button text="Add Range (Government)" onAction="#addGovRange" style="-fx-background-color: #4e54c8; -fx-text-fill: white;"/>
             </VBox>
         </Tab>
 
@@ -27,10 +29,10 @@
             <VBox spacing="10">
                 <TableView fx:id="privateTable" prefHeight="300" editable="true">
                     <columns>
-                        <TableColumn fx:id="privateMinCol" text="Min Amount" prefWidth="150"/>
-                        <TableColumn fx:id="privateMaxCol" text="Max Amount" prefWidth="150"/>
-                        <TableColumn fx:id="privateRateCol" text="Rate (%)" prefWidth="100"/>
-                        <TableColumn fx:id="privateActionCol" text="Actions" prefWidth="100"/>
+                        <TableColumn fx:id="privMinCol" text="Min Amount" prefWidth="150"/>
+                        <TableColumn fx:id="privMaxCol" text="Max Amount" prefWidth="150"/>
+                        <TableColumn fx:id="privRateCol" text="Rate (%)" prefWidth="100"/>
+                        <TableColumn fx:id="privActionCol" text="Actions" prefWidth="100"/>
                     </columns>
                 </TableView>
                 <Button text="Add Range (Private)" onAction="#addPrivateRange" style="-fx-background-color: #4e54c8; -fx-text-fill: white;"/>
@@ -41,10 +43,10 @@
             <VBox spacing="10">
                 <TableView fx:id="businessTable" prefHeight="300" editable="true">
                     <columns>
-                        <TableColumn fx:id="businessMinCol" text="Min Amount" prefWidth="150"/>
-                        <TableColumn fx:id="businessMaxCol" text="Max Amount" prefWidth="150"/>
-                        <TableColumn fx:id="businessRateCol" text="Rate (%)" prefWidth="100"/>
-                        <TableColumn fx:id="businessActionCol" text="Actions" prefWidth="100"/>
+                        <TableColumn fx:id="busMinCol" text="Min Amount" prefWidth="150"/>
+                        <TableColumn fx:id="busMaxCol" text="Max Amount" prefWidth="150"/>
+                        <TableColumn fx:id="busRateCol" text="Rate (%)" prefWidth="100"/>
+                        <TableColumn fx:id="busActionCol" text="Actions" prefWidth="100"/>
                     </columns>
                 </TableView>
                 <Button text="Add Range (Business)" onAction="#addBusinessRange" style="-fx-background-color: #4e54c8; -fx-text-fill: white;"/>

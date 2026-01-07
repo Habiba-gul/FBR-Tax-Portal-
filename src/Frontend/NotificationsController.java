@@ -5,7 +5,9 @@ import Backend.NotificationDAO;
 import Backend.SystemManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -51,5 +53,19 @@ public class NotificationsController {
         notifications.addAll(list);
 
         notificationTable.setItems(notifications);
+
+        // Feedback if no notifications
+        if (list.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("No Notifications");
+            alert.setHeaderText(null);
+            alert.setContentText("You have no new notifications at this time.");
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    private void handleRefresh(ActionEvent event) {
+        loadNotifications();
     }
 }

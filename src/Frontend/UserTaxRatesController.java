@@ -9,7 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;  // This import was missing!
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
@@ -27,58 +27,66 @@ public class UserTaxRatesController {
 
     @FXML
     public void initialize() {
-        categoryCombo.getItems().addAll("Salary", "Property", "Vehicles", "GST");
-
+        categoryCombo.getItems().addAll("Salary", "Property", "Vehicle", "GST");
         minCol.setCellValueFactory(new PropertyValueFactory<>("minAmount"));
         maxCol.setCellValueFactory(new PropertyValueFactory<>("maxAmount"));
         rateCol.setCellValueFactory(new PropertyValueFactory<>("rate"));
 
-        categoryCombo.valueProperty().addListener((obs, old, val) -> {
-            subCategoryBox.setVisible(!"Vehicles".equals(val) && !"GST".equals(val));
-            subCategoryCombo.getItems().clear();
-            if ("Salary".equals(val)) {
-                subCategoryCombo.getItems().addAll("Government", "Private", "Business");
-            } else if ("Property".equals(val)) {
-                subCategoryCombo.getItems().addAll("Residential", "Commercial");
+        categoryCombo.valueProperty().addListener((obs, old, newVal) -> {
+            if (newVal != null) {
+                if (newVal.equals("Salary")) {
+                    subCategoryCombo.getItems().setAll("Government", "Private", "Business");
+                    subCategoryBox.setVisible(true);
+                } else if (newVal.equals("Property")) {
+                    subCategoryCombo.getItems().setAll("Residential", "Commercial");
+                    subCategoryBox.setVisible(true);
+                } else {
+                    subCategoryBox.setVisible(false);
+                    loadRanges();
+                }
             }
-            rangesTable.getItems().clear();
         });
 
-        subCategoryCombo.valueProperty().addListener((obs, old, val) -> rangesTable.getItems().clear());
+        subCategoryCombo.valueProperty().addListener((obs, old, newVal) -> {
+            if (newVal != null) {
+                loadRanges();
+            }
+        });
     }
 
-    @FXML
-    private void handleShowRanges(ActionEvent event) {
+    private void loadRanges() {
         String category = categoryCombo.getValue();
         String sub = subCategoryCombo.getValue();
-
-        if (category == null) return;
-
-        String dbCategory;
-        if ("Vehicles".equals(category) || "GST".equals(category)) {
-            dbCategory = category.toLowerCase();
-        } else {
-            if ("Salary".equals(category)) {
-                switch (sub.toLowerCase()) {
-                    case "government":
-                        dbCategory = "salary_gov";
-                        break;
-                    case "private":
-                        dbCategory = "salary_private_company";
-                        break;
-                    case "business":
-                        dbCategory = "salary_business";
-                        break;
-                    default:
-                        dbCategory = "";
+        String dbCategory = "";
+        if (category != null) {
+            if (category.equals("Salary") && sub != null) {
+                String subLower = sub.toLowerCase();
+                if (subLower.equals("private")) {
+                    subLower = "private_company";  // Fix for DB match
+                } else if (subLower.equals("government")) {
+                    subLower = "gov";
+                } else if (subLower.equals("business")) {
+                    subLower = "business";
                 }
-            } else {
-                dbCategory = category.toLowerCase() + "_" + sub.toLowerCase();
+                dbCategory = "salary_" + subLower;
+            } else if (category.equals("Property") && sub != null) {
+                dbCategory = "property_" + sub.toLowerCase();
+            } else if (category.equals("Vehicle")) {
+                dbCategory = "vehicle";
+            } else if (category.equals("GST")) {
+                dbCategory = "gst";
             }
-        }
 
-        ObservableList<TaxRange> ranges = service.getRanges(dbCategory);
-        rangesTable.setItems(ranges);
+            System.out.println("Loading ranges for DB category: " + dbCategory); // Debug: Check console
+
+            ObservableList<TaxRange> ranges = service.getRanges(dbCategory);
+            System.out.println("Ranges found: " + ranges.size()); // Debug: Check count
+            for (TaxRange r : ranges) {
+                System.out.println("Range: min=" + r.getMinAmount() + ", max=" + r.getMaxAmount() + ", rate=" + r.getRate()); // Debug details
+            }
+
+            rangesTable.setItems(ranges);
+        }
     }
 
     @FXML

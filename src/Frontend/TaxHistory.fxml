@@ -11,12 +11,12 @@
     <TableView fx:id="historyTable" prefHeight="200">
         <columns>
             <TableColumn fx:id="idCol" text="Entry ID" prefWidth="100"/>
-            <TableColumn fx:id="dateCol" text="Payment Date" prefWidth="200"/>
+            <TableColumn fx:id="dateCol" text="Date" prefWidth="200"/>
             <TableColumn fx:id="totalCol" text="Total Tax (PKR)" prefWidth="150"/>
         </columns>
     </TableView>
 
-    <Label text="Selected Payment Details:" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+    <Label text="Selected Payment Details" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
 
     <TableView fx:id="detailsTable" prefHeight="200">
         <columns>

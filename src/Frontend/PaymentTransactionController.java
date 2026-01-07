@@ -2,6 +2,8 @@ package Frontend;
 
 import Backend.PaymentHistoryDAO;
 import Backend.SystemManager;
+import Backend.NotificationDAO;
+import Backend.UserDAO;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,6 +16,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 public class PaymentTransactionController {
@@ -28,7 +32,8 @@ public class PaymentTransactionController {
     @FXML private TableColumn<ReceiptItem, Integer> qtyCol;
     @FXML private TableColumn<ReceiptItem, Double> taxCol;
 
-    private final PaymentHistoryDAO historyDAO = new PaymentHistoryDAO();
+    private PaymentHistoryDAO dao = new PaymentHistoryDAO();
+    private double totalTax;
 
     @FXML
     public void initialize() {
@@ -37,38 +42,47 @@ public class PaymentTransactionController {
         qtyCol.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         taxCol.setCellValueFactory(new PropertyValueFactory<>("tax"));
 
-        double totalTax = SystemManager.getTotalTax();
-        List<ReceiptItem> items = SystemManager.getReceiptItems();
+        loadReceipt();
+    }
 
+    private void loadReceipt() {
+        List<ReceiptItem> items = SystemManager.getReceiptItems();
+        totalTax = SystemManager.getTotalTax();
         receiptTable.setItems(FXCollections.observableArrayList(items));
         totalTaxLabel.setText(String.format("Total Tax Amount: %.2f PKR", totalTax));
-        taxPercentageLabel.setText("Tax Percentage: Varies by Category");  // Placeholder, can calculate avg if needed
-        taxDeductedLabel.setText(String.format("Tax Deducted: %.2f PKR", totalTax));  // Assuming full deduction
+        taxPercentageLabel.setText("Tax Percentage: 17%"); // Adjust if dynamic
+        taxDeductedLabel.setText(String.format("Tax Deducted: %.2f PKR", totalTax));
     }
 
     @FXML
     private void handlePay(ActionEvent event) {
-        double totalTax = SystemManager.getTotalTax();
-        if (totalTax <= 0) {
-            new Alert(Alert.AlertType.WARNING, "No tax to pay.").show();
-            return;
-        }
-
-        // Build details string: "Desc:Price:Qty:Tax; Desc:Price:Qty:Tax; ..."
-        StringBuilder detailsBuilder = new StringBuilder();
-        for (ReceiptItem item : SystemManager.getReceiptItems()) {
-            detailsBuilder.append(item.getDescription()).append(":")
-                    .append(item.getPrice()).append(":")
-                    .append(item.getQuantity()).append(":")
-                    .append(item.getTax()).append(";");
-        }
-        String details = detailsBuilder.toString();
-
-        // Insert to history
         int userId = SystemManager.getCurrentUser().getId();
-        boolean success = historyDAO.insertPayment(userId, totalTax, details);
-
+        StringBuilder details = new StringBuilder();
+        for (ReceiptItem item : receiptTable.getItems()) {
+            details.append(item.getDescription()).append(",")
+                   .append(item.getPrice()).append(",")
+                   .append(item.getQuantity()).append(",")
+                   .append(item.getTax()).append("|");
+        }
+        boolean success = dao.insertPayment(userId, totalTax, details.toString());
         if (success) {
+            // Update status to Paid
+            UserDAO.updateTaxStatus(userId, "Paid");
+
+            // Update payment date
+            Date sqlDate = Date.valueOf(LocalDate.now());
+            UserDAO.updatePaymentDate(userId, sqlDate);
+
+            // Send payment confirmation notification (real, official)
+            String msg = "Dear " + SystemManager.getCurrentUser().getName() + ",\n\n" +
+                         "This is to confirm that your tax payment of " + String.format("%.2f", totalTax) + " PKR has been successfully recorded on " + LocalDate.now() + ".\n\n" +
+                         "Thank you for your compliance with FBR regulations.\n\n" +
+                         "Your status has been updated to Paid. For any queries, contact FBR Helpline at 111-772-772.\n\n" +
+                         "Regards,\n" +
+                         "Federal Board of Revenue (FBR)\n" +
+                         "Government of Pakistan";
+            NotificationDAO.addNotification(userId, "Tax Payment Confirmation", msg, "PAYMENT");
+
             new Alert(Alert.AlertType.INFORMATION, String.format("Payment of %.2f PKR successful! Recorded in history.", totalTax)).show();
             SystemManager.clearReceipt();
         } else {
