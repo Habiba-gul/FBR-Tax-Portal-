@@ -22,13 +22,8 @@ public class AdminDashboardController {
     @FXML private TableColumn<User, String> statusColumn;
     @FXML private TableColumn<User, Double> penaltyColumn;
 
-    @FXML private Label selectedNameLabel;
-    @FXML private Label selectedCnicLabel;
-    @FXML private Label selectedStatusLabel;
-    @FXML private Label selectedPenaltyLabel;
-
-    private AdminService service = new AdminService();
-    private User selectedUser;
+    private final AdminService adminService = new AdminService();
+    private ObservableList<User> users;
 
     @FXML
     public void initialize() {
@@ -38,39 +33,49 @@ public class AdminDashboardController {
         penaltyColumn.setCellValueFactory(new PropertyValueFactory<>("penalty"));
 
         loadUsers();
-
-        userTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) {
-                selectedUser = newSelection;
-                selectedNameLabel.setText(selectedUser.getName());
-                selectedCnicLabel.setText(selectedUser.getCnic());
-                selectedStatusLabel.setText(selectedUser.getStatus());
-                selectedPenaltyLabel.setText(String.valueOf(selectedUser.getPenalty()));
-            }
-        });
     }
 
     private void loadUsers() {
-        ObservableList<User> users = service.getAllUsers();
+        users = adminService.getAllUsers();
         userTable.setItems(users);
     }
 
     @FXML
+    private void handleTaxRates() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("TaxRateSettings.fxml"));
+            Stage stage = (Stage) userTable.getScene().getWindow();
+            stage.setScene(new Scene(root, 800, 600));
+            stage.setTitle("FBR Tax Portal - Tax Rate Settings");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
     private void handleUpdatePenalty() {
-        if (selectedUser == null) {
-            showAlert(Alert.AlertType.WARNING, "No User Selected", "Please select a user.");
+        User selected = userTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a user.");
             return;
         }
-        TextInputDialog dialog = new TextInputDialog(String.valueOf(selectedUser.getPenalty()));
+
+        TextInputDialog dialog = new TextInputDialog(String.valueOf(selected.getPenalty()));
         dialog.setTitle("Update Penalty");
-        dialog.setHeaderText("Enter new penalty amount for " + selectedUser.getName());
+        dialog.setHeaderText("Enter new penalty amount for " + selected.getName());
+        dialog.setContentText("Penalty:");
+
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(penaltyStr -> {
             try {
-                double penalty = Double.parseDouble(penaltyStr);
-                service.updatePenalty(selectedUser.getCnic(), penalty);
-                showAlert(Alert.AlertType.INFORMATION, "Success", "Penalty updated.");
-                loadUsers();
+                double newPenalty = Double.parseDouble(penaltyStr);
+                if (adminService.updatePenalty(selected.getId(), newPenalty)) {
+                    selected.setPenalty(newPenalty);
+                    userTable.refresh();
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Penalty updated!");
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to update penalty.");
+                }
             } catch (NumberFormatException e) {
                 showAlert(Alert.AlertType.ERROR, "Invalid Input", "Please enter a valid number.");
             }
@@ -78,48 +83,20 @@ public class AdminDashboardController {
     }
 
     @FXML
-    private void handleSuspend() {
-        if (selectedUser == null) {
-            showAlert(Alert.AlertType.WARNING, "No User Selected", "Please select a user.");
-            return;
-        }
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Suspend User");
-        confirm.setHeaderText("Suspend " + selectedUser.getName() + "?");
-        Optional<ButtonType> result = confirm.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            service.suspendUser(selectedUser.getCnic());
-            showAlert(Alert.AlertType.INFORMATION, "Success", "User suspended.");
-            loadUsers();
-        }
-    }
-
-    @FXML
-    private void handleOverride() {
-        if (selectedUser == null) {
-            showAlert(Alert.AlertType.WARNING, "No User Selected", "Please select a user.");
-            return;
-        }
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Override Status");
-        confirm.setHeaderText("Set " + selectedUser.getName() + " status to Paid?");
-        Optional<ButtonType> result = confirm.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            service.updateStatus(selectedUser.getCnic(), "Paid");
-            showAlert(Alert.AlertType.INFORMATION, "Success", "User status overridden to Paid.");
-            loadUsers();
-        }
-    }
-
-    @FXML
     private void handleSendReminder() {
-        if (selectedUser == null) {
-            showAlert(Alert.AlertType.WARNING, "No User Selected", "Please select a user.");
+        User selected = userTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a user.");
             return;
         }
-        // Functional call: Sends real notification
-        service.sendReminder(selectedUser.getId(), selectedUser.getName());
-        showAlert(Alert.AlertType.INFORMATION, "Success", "Official tax reminder sent to " + selectedUser.getName() + ". It will appear in their portal.");
+
+        if ("Paid".equals(selected.getStatus())) {
+            showAlert(Alert.AlertType.WARNING, "Invalid Action", "User is already paid.");
+            return;
+        }
+
+        adminService.sendTaxReminder(selected.getId());
+        showAlert(Alert.AlertType.INFORMATION, "Success", "Reminder sent to " + selected.getName() + "!");
     }
 
     @FXML
@@ -128,16 +105,30 @@ public class AdminDashboardController {
     }
 
     @FXML
-    private void handleTaxRates() {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("TaxRateSettings.fxml"));
-            Stage stage = (Stage) userTable.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("FBR Tax Portal - Tax Rates");
-            stage.centerOnScreen();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", "Unable to open Tax Rate Settings.");
+    private void handleToggleStatus() {
+        User selected = userTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a user.");
+            return;
+        }
+
+        String currentStatus = selected.getStatus();
+        String newStatus = "Paid".equals(currentStatus) ? "Unpaid" : "Paid";
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirm Status Change");
+        confirm.setHeaderText("Change status for " + selected.getName() + " from " + currentStatus + " to " + newStatus + "?");
+        confirm.setContentText("This action will update the user's tax status.");
+
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            if (adminService.updateStatus(selected.getId(), newStatus)) {
+                selected.setStatus(newStatus);
+                userTable.refresh();
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Status updated to " + newStatus + "!");
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to update status.");
+            }
         }
     }
 
@@ -145,7 +136,7 @@ public class AdminDashboardController {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("Login.fxml"));
             Stage stage = (Stage) userTable.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            stage.setScene(new Scene(root, 800, 600));
             stage.setTitle("FBR Tax Portal - Login");
             stage.centerOnScreen();
         } catch (IOException e) {

@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="Frontend.VehicleTaxSettingsController" spacing="15" alignment="TOP_CENTER"
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Frontend.VehicleTaxSettingsController"
+      spacing="15" alignment="TOP_CENTER"
       style="-fx-padding: 20; -fx-background-color: #f4f4f9;">
 
     <Label text="Manage Vehicle Tax Ranges" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
@@ -13,13 +15,16 @@
             <TableColumn fx:id="vehMinCol" text="Min Amount" prefWidth="150"/>
             <TableColumn fx:id="vehMaxCol" text="Max Amount" prefWidth="150"/>
             <TableColumn fx:id="vehRateCol" text="Rate (%)" prefWidth="100"/>
-            <TableColumn fx:id="vehActionCol" text="Actions" prefWidth="100"/>
+            <TableColumn fx:id="vehDeleteCol" text="Action" prefWidth="100"/>
         </columns>
     </TableView>
 
     <HBox spacing="20" alignment="CENTER">
-        <Button text="Add Range" onAction="#addRange" style="-fx-background-color: #4e54c8; -fx-text-fill: white; -fx-padding: 10 20;"/>
-        <Button text="Save All Changes" onAction="#saveAll" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-padding: 10 20;"/>
-        <Button text="Back" onAction="#handleBack" style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-padding: 10 20;"/>
+        <Button text="Add Range" onAction="#addRange"
+                style="-fx-background-color: #4e54c8; -fx-text-fill: white; -fx-padding: 10 20;"/>
+        <Button text="Save All Changes" onAction="#saveAll"
+                style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-padding: 10 20;"/>
+        <Button text="Back" onAction="#handleBack"
+                style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-padding: 10 20;"/>
     </HBox>
 </VBox>

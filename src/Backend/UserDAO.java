@@ -59,7 +59,6 @@ public class UserDAO {
         return list;
     }
 
-    // NEW METHOD: Update user profile in the database
     public static boolean updateUser(UserInfo user) {
         String sql = "UPDATE users SET name = ?, dob = ?, gender = ?, address = ?, email = ?, phone = ? WHERE id = ?";
         try (Connection con = DBconnection.getConnection();
@@ -87,7 +86,6 @@ public class UserDAO {
         }
     }
 
-    // Existing methods for tax status and payment date (keep them)
     public static boolean updateTaxStatus(int userId, String status) {
         String sql = "UPDATE taxpayer_profile SET status = ? WHERE user_id = ?";
         try (Connection con = DBconnection.getConnection();
@@ -106,6 +104,35 @@ public class UserDAO {
         try (Connection con = DBconnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setDate(1, date);
+            ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static double getPenalty(int userId) {
+        String sql = "SELECT penalty FROM taxpayer_profile WHERE user_id = ?";
+        try (Connection con = DBconnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("penalty");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
+
+    // NEW METHOD: Update penalty amount in taxpayer_profile
+    public static boolean updatePenalty(int userId, double amount) {
+        String sql = "UPDATE taxpayer_profile SET penalty = ? WHERE user_id = ?";
+        try (Connection con = DBconnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setDouble(1, amount);
             ps.setInt(2, userId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {

@@ -20,36 +20,54 @@ public class PropertyTaxSettingsController {
 
     @FXML private TableView<TaxRange> residentialTable;
     @FXML private TableColumn<TaxRange, Double> resMinCol, resMaxCol, resRateCol;
-    @FXML private TableColumn<TaxRange, Void> resActionCol;
+    @FXML private TableColumn<TaxRange, Void> resDeleteCol;
 
     @FXML private TableView<TaxRange> commercialTable;
-    @FXML private TableColumn<TaxRange, Double> commMinCol, commMaxCol, commRateCol;
-    @FXML private TableColumn<TaxRange, Void> commActionCol;
+    @FXML private TableColumn<TaxRange, Double> comMinCol, comMaxCol, comRateCol;
+    @FXML private TableColumn<TaxRange, Void> comDeleteCol;
 
     private final TaxRangeService service = TaxRangeService.getInstance();
 
     @FXML
     public void initialize() {
-        setupTable(residentialTable, resMinCol, resMaxCol, resRateCol, resActionCol, "property_residential");
-        setupTable(commercialTable, commMinCol, commMaxCol, commRateCol, commActionCol, "property_commercial");
+        setupTable(residentialTable, resMinCol, resMaxCol, resRateCol, resDeleteCol, "property_residential");
+        setupTable(commercialTable, comMinCol, comMaxCol, comRateCol, comDeleteCol, "property_commercial");
     }
 
-    private void setupTable(TableView<TaxRange> table, TableColumn<TaxRange, Double> minCol, TableColumn<TaxRange, Double> maxCol, 
-                            TableColumn<TaxRange, Double> rateCol, TableColumn<TaxRange, Void> actionCol, String category) {
+    private void setupTable(TableView<TaxRange> table,
+                            TableColumn<TaxRange, Double> minCol,
+                            TableColumn<TaxRange, Double> maxCol,
+                            TableColumn<TaxRange, Double> rateCol,
+                            TableColumn<TaxRange, Void> deleteCol,
+                            String category) {
+
+        // Editable columns
         minCol.setCellValueFactory(new PropertyValueFactory<>("minAmount"));
         minCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-        minCol.setOnEditCommit(e -> e.getRowValue().setMinAmount(e.getNewValue()));
+        minCol.setOnEditCommit(e -> updateRange(e.getRowValue(), e.getNewValue(), null, null));
 
         maxCol.setCellValueFactory(new PropertyValueFactory<>("maxAmount"));
         maxCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-        maxCol.setOnEditCommit(e -> e.getRowValue().setMaxAmount(e.getNewValue()));
+        maxCol.setOnEditCommit(e -> updateRange(e.getRowValue(), null, e.getNewValue(), null));
 
         rateCol.setCellValueFactory(new PropertyValueFactory<>("rate"));
         rateCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-        rateCol.setOnEditCommit(e -> e.getRowValue().setRate(e.getNewValue()));
+        rateCol.setOnEditCommit(e -> updateRange(e.getRowValue(), null, null, e.getNewValue()));
 
-        actionCol.setCellFactory(col -> new TableCell<TaxRange, Void>() {
-            private final Button deleteBtn = new Button("Delete");
+        // Delete column with button
+        deleteCol.setCellFactory(col -> new TableCell<>() {
+            private final Button deleteButton = new Button("Delete");
+
+            {
+                deleteButton.setOnAction(event -> {
+                    TaxRange range = getTableView().getItems().get(getIndex());
+                    if (service.deleteRange(range)) {
+                        table.setItems(service.getRanges(category));
+                    } else {
+                        showAlert(Alert.AlertType.ERROR, "Delete Failed", "Could not delete range.");
+                    }
+                });
+            }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
@@ -57,73 +75,82 @@ public class PropertyTaxSettingsController {
                 if (empty) {
                     setGraphic(null);
                 } else {
-                    deleteBtn.setOnAction(event -> {
-                        TaxRange range = getTableView().getItems().get(getIndex());
-                        if (service.deleteRange(range)) {
-                            table.getItems().remove(range);
-                        } else {
-                            showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete range.");
-                        }
-                    });
-                    setGraphic(deleteBtn);
+                    setGraphic(deleteButton);
                 }
             }
         });
 
         table.setItems(service.getRanges(category));
+        table.setEditable(true);
+    }
+
+    private void updateRange(TaxRange range, Double newMin, Double newMax, Double newRate) {
+        if (newMin != null) range.setMinAmount(newMin);
+        if (newMax != null) range.setMaxAmount(newMax);
+        if (newRate != null) range.setRate(newRate);
+
+        if (!service.updateRange(range)) {
+            showAlert(Alert.AlertType.ERROR, "Update Failed", "Could not update range.");
+        }
     }
 
     @FXML
     private void addResidentialRange(ActionEvent event) {
-        addRangeToTable(residentialTable, "property_residential");
+        addRange("property_residential", residentialTable);
     }
 
     @FXML
     private void addCommercialRange(ActionEvent event) {
-        addRangeToTable(commercialTable, "property_commercial");
+        addRange("property_commercial", commercialTable);
     }
 
-    private void addRangeToTable(TableView<TaxRange> table, String category) {
-        if (service.addRange(category, 0, 0, 0)) {
-            table.setItems(service.getRanges(category)); // Reload to get new ID
-        } else {
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to add new range.");
-        }
+    private void addRange(String category, TableView<TaxRange> table) {
+        // Simple dialog-based add (you can enhance if needed)
+        TextInputDialog minDialog = new TextInputDialog("0");
+        minDialog.setTitle("Add New Range");
+        minDialog.setHeaderText("Min Amount");
+        minDialog.showAndWait().ifPresent(minStr -> {
+            try {
+                double min = Double.parseDouble(minStr);
+                TextInputDialog maxDialog = new TextInputDialog("Infinity");
+                maxDialog.setHeaderText("Max Amount");
+                maxDialog.showAndWait().ifPresent(maxStr -> {
+                    double max = maxStr.equalsIgnoreCase("Infinity") ? Double.MAX_VALUE : Double.parseDouble(maxStr);
+                    TextInputDialog rateDialog = new TextInputDialog("0");
+                    rateDialog.setHeaderText("Rate (%)");
+                    rateDialog.showAndWait().ifPresent(rateStr -> {
+                        double rate = Double.parseDouble(rateStr);
+                        if (service.addRange(category, min, max, rate)) {
+                            table.setItems(service.getRanges(category));
+                        } else {
+                            showAlert(Alert.AlertType.ERROR, "Add Failed", "Could not add range.");
+                        }
+                    });
+                });
+            } catch (NumberFormatException ex) {
+                showAlert(Alert.AlertType.ERROR, "Invalid Input", "Please enter valid numbers.");
+            }
+        });
     }
 
     @FXML
     private void saveAll(ActionEvent event) {
-        int changes = 0;
-        changes += saveTable(residentialTable);
-        changes += saveTable(commercialTable);
-        showAlert(Alert.AlertType.INFORMATION, "Success", "Saved " + changes + " changes to database.");
-    }
-
-    private int saveTable(TableView<TaxRange> table) {
-        int count = 0;
-        for (TaxRange range : table.getItems()) {
-            if (service.updateRange(range)) {
-                count++;
-                System.out.println("Updated range ID " + range.getId() + " in DB (Property)");
-            } else {
-                System.out.println("Failed to update range ID " + range.getId() + " (Property)");
-            }
-        }
-        return count;
+        showAlert(Alert.AlertType.INFORMATION, "Saved", "All changes have been saved to the database.");
     }
 
     @FXML
     private void handleBack(ActionEvent event) {
-    try {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("TaxRateSettings.fxml"));
-        Parent root = loader.load();
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root, 800, 600));
-        stage.setTitle("FBR Tax Portal - Tax Rate Settings");
-    } catch (IOException e) {
-        e.printStackTrace();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("TaxRateSettings.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 800, 600));
+            stage.setTitle("FBR Tax Portal - Tax Rate Settings");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-}
+
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

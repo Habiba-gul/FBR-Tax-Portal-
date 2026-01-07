@@ -44,6 +44,7 @@
                     <TableColumn fx:id="priceCol" text="Price (PKR)" prefWidth="140"/>
                     <TableColumn fx:id="qtyCol" text="Quantity" prefWidth="100"/>
                     <TableColumn fx:id="taxCol" text="Tax (PKR)" prefWidth="140"/>
+                    
                 </columns>
             </TableView>
         </VBox>
@@ -68,6 +69,10 @@
             <Label fx:id="taxDeductedLabel"
                    text="Tax Deducted: 0.00 PKR"
                    style="-fx-font-size: 14;" />
+                   
+            <Label fx:id="penaltyLabel" 
+                   text="Penalty: 0.00 PKR" 
+                   style="-fx-font-size: 14; -fx-text-fill: #d9534f;"/>
         </VBox>
     </right>
 

@@ -29,7 +29,7 @@ public class TaxRateSettingsController {
 
     @FXML
     private void handleGstSettings(ActionEvent event) {
-        openSubSettings(event, "GstTaxSettings.fxml", "Manage GST Ranges");
+        openSubSettings(event, "GstTaxSettings.fxml", "Manage GST Tax Ranges");
     }
 
     @FXML
@@ -38,7 +38,8 @@ public class TaxRateSettingsController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("AdminDashboard.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
+            stage.setScene(new Scene(root, 800, 600));
+            stage.setTitle("FBR Tax Portal - Admin Dashboard");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -49,7 +50,7 @@ public class TaxRateSettingsController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
             Parent root = loader.load();
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
+            stage.setScene(new Scene(root, 800, 600));
             stage.setTitle(title);
         } catch (IOException e) {
             e.printStackTrace();

@@ -14,32 +14,26 @@
       style="-fx-padding:20;">
 
     <TableView fx:id="notificationTable" prefHeight="500" prefWidth="750">
-        <columns>
-            <TableColumn fx:id="titleColumn" text="Title" prefWidth="150">
-                <cellValueFactory>
-                    <PropertyValueFactory property="title" />
-                </cellValueFactory>
-            </TableColumn>
-
-            <TableColumn fx:id="messageColumn" text="Message" prefWidth="500">
-                <cellValueFactory>
-                    <PropertyValueFactory property="message" />
-                </cellValueFactory>
-            </TableColumn>
-
-            <TableColumn fx:id="typeColumn" text="Type" prefWidth="100">
-                <cellValueFactory>
-                    <PropertyValueFactory property="type" />
-                </cellValueFactory>
-            </TableColumn>
-
-            <TableColumn fx:id="dateColumn" text="Date" prefWidth="150">
-                <cellValueFactory>
-                    <PropertyValueFactory property="createdAt" />
-                </cellValueFactory>
-            </TableColumn>
-        </columns>
-    </TableView>
+    <columns>
+        <TableColumn fx:id="titleColumn" text="Title" prefWidth="200">
+            <cellValueFactory>
+                <PropertyValueFactory property="title" />
+            </cellValueFactory>
+        </TableColumn>
+        <TableColumn fx:id="messageColumn" text="Message" prefWidth="400">
+        </TableColumn>
+        <TableColumn fx:id="typeColumn" text="Type" prefWidth="100">
+            <cellValueFactory>
+                <PropertyValueFactory property="type" />
+            </cellValueFactory>
+        </TableColumn>
+        <TableColumn fx:id="dateColumn" text="Date" prefWidth="150">
+            <cellValueFactory>
+                <PropertyValueFactory property="createdAt" />
+            </cellValueFactory>
+        </TableColumn>
+    </columns>
+</TableView>
 
     <HBox spacing="20" alignment="CENTER">
         <Button text="Refresh Notifications"

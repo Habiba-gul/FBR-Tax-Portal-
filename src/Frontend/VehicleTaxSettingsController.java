@@ -20,94 +20,105 @@ public class VehicleTaxSettingsController {
 
     @FXML private TableView<TaxRange> vehicleTable;
     @FXML private TableColumn<TaxRange, Double> vehMinCol, vehMaxCol, vehRateCol;
-    @FXML private TableColumn<TaxRange, Void> vehActionCol;
+    @FXML private TableColumn<TaxRange, Void> vehDeleteCol;
 
     private final TaxRangeService service = TaxRangeService.getInstance();
 
     @FXML
     public void initialize() {
-        setupTable(vehicleTable, vehMinCol, vehMaxCol, vehRateCol, vehActionCol, "vehicle");
-    }
+        vehMinCol.setCellValueFactory(new PropertyValueFactory<>("minAmount"));
+        vehMinCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        vehMinCol.setOnEditCommit(e -> updateRange(e.getRowValue(), e.getNewValue(), null, null));
 
-    private void setupTable(TableView<TaxRange> table, TableColumn<TaxRange, Double> minCol, TableColumn<TaxRange, Double> maxCol, 
-                            TableColumn<TaxRange, Double> rateCol, TableColumn<TaxRange, Void> actionCol, String category) {
-        minCol.setCellValueFactory(new PropertyValueFactory<>("minAmount"));
-        minCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-        minCol.setOnEditCommit(e -> e.getRowValue().setMinAmount(e.getNewValue()));
+        vehMaxCol.setCellValueFactory(new PropertyValueFactory<>("maxAmount"));
+        vehMaxCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        vehMaxCol.setOnEditCommit(e -> updateRange(e.getRowValue(), null, e.getNewValue(), null));
 
-        maxCol.setCellValueFactory(new PropertyValueFactory<>("maxAmount"));
-        maxCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-        maxCol.setOnEditCommit(e -> e.getRowValue().setMaxAmount(e.getNewValue()));
+        vehRateCol.setCellValueFactory(new PropertyValueFactory<>("rate"));
+        vehRateCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        vehRateCol.setOnEditCommit(e -> updateRange(e.getRowValue(), null, null, e.getNewValue()));
 
-        rateCol.setCellValueFactory(new PropertyValueFactory<>("rate"));
-        rateCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-        rateCol.setOnEditCommit(e -> e.getRowValue().setRate(e.getNewValue()));
+        vehDeleteCol.setCellFactory(col -> new TableCell<>() {
+            private final Button deleteButton = new Button("Delete");
 
-        actionCol.setCellFactory(col -> new TableCell<TaxRange, Void>() {
-            private final Button deleteBtn = new Button("Delete");
+            {
+                deleteButton.setOnAction(event -> {
+                    TaxRange range = getTableView().getItems().get(getIndex());
+                    if (service.deleteRange(range)) {
+                        vehicleTable.setItems(service.getRanges("vehicle"));
+                    } else {
+                        showAlert(Alert.AlertType.ERROR, "Delete Failed", "Could not delete range.");
+                    }
+                });
+            }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    deleteBtn.setOnAction(event -> {
-                        TaxRange range = getTableView().getItems().get(getIndex());
-                        if (service.deleteRange(range)) {
-                            table.getItems().remove(range);
-                        } else {
-                            showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete range.");
-                        }
-                    });
-                    setGraphic(deleteBtn);
-                }
+                setGraphic(empty ? null : deleteButton);
             }
         });
 
-        table.setItems(service.getRanges(category));
+        vehicleTable.setItems(service.getRanges("vehicle"));
+        vehicleTable.setEditable(true);
+    }
+
+    private void updateRange(TaxRange range, Double newMin, Double newMax, Double newRate) {
+        if (newMin != null) range.setMinAmount(newMin);
+        if (newMax != null) range.setMaxAmount(newMax);
+        if (newRate != null) range.setRate(newRate);
+
+        if (!service.updateRange(range)) {
+            showAlert(Alert.AlertType.ERROR, "Update Failed", "Could not update range.");
+        }
     }
 
     @FXML
     private void addRange(ActionEvent event) {
-        if (service.addRange("vehicle", 0, 0, 0)) {
-            vehicleTable.setItems(service.getRanges("vehicle"));
-        } else {
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to add new range.");
-        }
+        TextInputDialog minDialog = new TextInputDialog("0");
+        minDialog.setTitle("Add New Range");
+        minDialog.setHeaderText("Min Amount");
+        minDialog.showAndWait().ifPresent(minStr -> {
+            try {
+                double min = Double.parseDouble(minStr);
+                TextInputDialog maxDialog = new TextInputDialog("Infinity");
+                maxDialog.setHeaderText("Max Amount");
+                maxDialog.showAndWait().ifPresent(maxStr -> {
+                    double max = maxStr.equalsIgnoreCase("Infinity") ? Double.MAX_VALUE : Double.parseDouble(maxStr);
+                    TextInputDialog rateDialog = new TextInputDialog("0");
+                    rateDialog.setHeaderText("Rate (%)");
+                    rateDialog.showAndWait().ifPresent(rateStr -> {
+                        double rate = Double.parseDouble(rateStr);
+                        if (service.addRange("vehicle", min, max, rate)) {
+                            vehicleTable.setItems(service.getRanges("vehicle"));
+                        } else {
+                            showAlert(Alert.AlertType.ERROR, "Add Failed", "Could not add range.");
+                        }
+                    });
+                });
+            } catch (NumberFormatException ex) {
+                showAlert(Alert.AlertType.ERROR, "Invalid Input", "Please enter valid numbers.");
+            }
+        });
     }
 
     @FXML
     private void saveAll(ActionEvent event) {
-        int changes = saveTable(vehicleTable);
-        showAlert(Alert.AlertType.INFORMATION, "Success", "Saved " + changes + " changes to database.");
-    }
-
-    private int saveTable(TableView<TaxRange> table) {
-        int count = 0;
-        for (TaxRange range : table.getItems()) {
-            if (service.updateRange(range)) {
-                count++;
-                System.out.println("Updated range ID " + range.getId() + " in DB (Vehicle)");
-            } else {
-                System.out.println("Failed to update range ID " + range.getId() + " (Vehicle)");
-            }
-        }
-        return count;
+        showAlert(Alert.AlertType.INFORMATION, "Saved", "All changes have been saved to the database.");
     }
 
     @FXML
     private void handleBack(ActionEvent event) {
-    try {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("TaxRateSettings.fxml"));
-        Parent root = loader.load();
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root, 800, 600));
-        stage.setTitle("FBR Tax Portal - Tax Rate Settings");
-    } catch (IOException e) {
-        e.printStackTrace();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("TaxRateSettings.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 800, 600));
+            stage.setTitle("FBR Tax Portal - Tax Rate Settings");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-}
 
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);

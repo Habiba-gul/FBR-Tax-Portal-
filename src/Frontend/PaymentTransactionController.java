@@ -23,14 +23,15 @@ import java.time.LocalDate;
 public class PaymentTransactionController {
 
     @FXML private Label totalTaxLabel;
-    @FXML private Label taxPercentageLabel;
     @FXML private Label taxDeductedLabel;
+    @FXML private Label penaltyLabel;
 
     @FXML private TableView<ReceiptItem> receiptTable;
     @FXML private TableColumn<ReceiptItem, String> descCol;
     @FXML private TableColumn<ReceiptItem, Double> priceCol;
     @FXML private TableColumn<ReceiptItem, Integer> qtyCol;
     @FXML private TableColumn<ReceiptItem, Double> taxCol;
+    
 
     private PaymentHistoryDAO dao = new PaymentHistoryDAO();
     private double totalTax;
@@ -46,13 +47,29 @@ public class PaymentTransactionController {
     }
 
     private void loadReceipt() {
-        totalTax = SystemManager.getTotalTax();
-        receiptTable.setItems(FXCollections.observableArrayList(SystemManager.getReceiptItems()));
+    totalTax = SystemManager.getTotalTax();
 
-        totalTaxLabel.setText(String.format("Total Tax Amount: %.2f PKR", totalTax));
-        taxPercentageLabel.setText("Tax Percentage: Dynamic");
-        taxDeductedLabel.setText(String.format("Tax Deducted: %.2f PKR", totalTax));
+    // Fetch penalty from DB
+    double penalty = 0.0;
+    UserInfo currentUser = SystemManager.getCurrentUser();
+    if (currentUser != null) {
+        penalty = UserDAO.getPenalty(currentUser.getId());
     }
+
+    receiptTable.setItems(FXCollections.observableArrayList(SystemManager.getReceiptItems()));
+
+    totalTaxLabel.setText(String.format("Total Tax Amount: %.2f PKR", totalTax + penalty));
+    taxDeductedLabel.setText(String.format("Tax Deducted: %.2f PKR", totalTax));
+
+    // Show penalty only if > 0
+    if (penalty > 0) {
+        penaltyLabel.setText(String.format("Penalty: %.2f PKR", penalty));
+        penaltyLabel.setVisible(true);
+    } else {
+        penaltyLabel.setText("Penalty: 0.00 PKR");
+        penaltyLabel.setVisible(false);  // Hide when zero
+    }
+}
 
     @FXML
     private void handlePay(ActionEvent event) {
@@ -64,26 +81,36 @@ public class PaymentTransactionController {
 
         int userId = currentUser.getId();
 
+        // Fetch current penalty
+        double penalty = UserDAO.getPenalty(userId);
+
         StringBuilder detailsBuilder = new StringBuilder();
 
         for (ReceiptItem item : receiptTable.getItems()) {
             String description = item.getDescription();
-
             String taxType = extractTaxType(description);
             String category = extractCategory(description);
-
             double taxPercent = item.getPrice() > 0 ? (item.getTax() / item.getPrice()) * 100 : 0.0;
-
             double originalPrice = item.getPrice();
             double taxAmount = item.getTax();
-            double penalty = 0.0;
 
             detailsBuilder.append(taxType).append(",")
                           .append(category).append(",")
                           .append(String.format("%.2f", taxPercent)).append(",")
                           .append(String.format("%.2f", originalPrice)).append(",")
                           .append(String.format("%.2f", taxAmount)).append(",")
-                          .append(String.format("%.2f", penalty)).append("|");
+                          .append("0|");
+        }
+
+        // Add penalty if exists
+        if (penalty > 0) {
+            detailsBuilder.append("Penalty,Overdue Penalty,0.0,0.0,")
+                          .append(String.format("%.2f", penalty))
+                          .append(",0|");
+            totalTax += penalty;
+
+            // Clear penalty after payment
+            UserDAO.updatePenalty(userId, 0.0);
         }
 
         String details = detailsBuilder.toString();
@@ -97,10 +124,8 @@ public class PaymentTransactionController {
             String message = "Dear " + currentUser.getName() + ",\n\n" +
                     "Your tax payment of PKR " + String.format("%.2f", totalTax) +
                     " has been successfully received on " + LocalDate.now() + ".\n\n" +
-                    "Thank you for fulfilling your tax obligations.\n" +
-                    "Your taxpayer status is now 'Paid'.\n\n" +
-                    "For queries: FBR Helpline 111-772-772\n\n" +
-                    "Federal Board of Revenue\nGovernment of Pakistan";
+                    (penalty > 0 ? "This includes clearance of your overdue penalty of PKR " + String.format("%.2f", penalty) + ".\n\n" : "") +
+                    "Thank you for your compliance.\n\nFBR";
 
             NotificationDAO.addNotification(userId, "Payment Confirmation", message, "PAYMENT");
 
@@ -108,7 +133,7 @@ public class PaymentTransactionController {
                     String.format("Payment of %.2f PKR successful! Recorded in history.", totalTax)).showAndWait();
 
             SystemManager.clearReceipt();
-            loadReceipt(); // Clear table
+            loadReceipt();
         } else {
             new Alert(Alert.AlertType.ERROR, "Payment failed to record. Please try again.").showAndWait();
         }
