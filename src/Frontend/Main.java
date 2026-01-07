@@ -31,7 +31,7 @@ public class Main extends Application {
         PauseTransition wait = new PauseTransition(Duration.seconds(5)); // 5 seconds
         wait.setOnFinished(event -> {
             try {
-                FXMLLoader loginLoader = new FXMLLoader(getClass().getResource("Login.fxml"));
+                FXMLLoader loginLoader = new FXMLLoader(getClass().getResource("login.fxml"));
                 Parent loginRoot = loginLoader.load();
                 Scene loginScene = new Scene(loginRoot);
 

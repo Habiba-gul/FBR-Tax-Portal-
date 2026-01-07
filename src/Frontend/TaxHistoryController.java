@@ -3,7 +3,6 @@ package Frontend;
 import Backend.PaymentHistory;
 import Backend.PaymentHistoryDAO;
 import Backend.SystemManager;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -32,12 +31,15 @@ public class TaxHistoryController {
     @FXML private TableColumn<ReceiptItem, Integer> qtyDetailCol;
     @FXML private TableColumn<ReceiptItem, Double> taxDetailCol;
 
+    @FXML private Button viewReportBtn;
+
     private PaymentHistoryDAO dao = new PaymentHistoryDAO();
 
     @FXML
     public void initialize() {
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
-        dateCol.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().getPaymentDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))));
+        dateCol.setCellValueFactory(p -> new javafx.beans.property.SimpleStringProperty(
+                p.getValue().getPaymentDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))));
         totalCol.setCellValueFactory(new PropertyValueFactory<>("totalTax"));
 
         descDetailCol.setCellValueFactory(new PropertyValueFactory<>("description"));
@@ -47,47 +49,67 @@ public class TaxHistoryController {
 
         loadHistory();
 
-        // Listener for row selection to load details
-        historyTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) {
-                loadDetails(newSelection);
+        historyTable.getSelectionModel().selectedItemProperty().addListener((obs, old, newVal) -> {
+            viewReportBtn.setDisable(newVal == null);
+            if (newVal != null) {
+                loadDetails(newVal);
+            } else {
+                detailsTable.getItems().clear();
             }
         });
+
+        viewReportBtn.setDisable(true);
     }
 
     private void loadHistory() {
         int userId = SystemManager.getCurrentUser().getId();
         List<PaymentHistory> history = dao.getHistoryByUser(userId);
         historyTable.setItems(FXCollections.observableArrayList(history));
-        System.out.println("Loaded " + history.size() + " history entries"); // Debug
     }
 
     private void loadDetails(PaymentHistory history) {
         detailsTable.getItems().clear();
-        String details = history.getDetails();
-        System.out.println("Loading details for ID " + history.getId() + ": " + details); // Debug
-        if (details != null && !details.isEmpty()) {
-            String[] items = details.split("\\|");
-            for (String item : items) {
-                if (item.trim().isEmpty()) continue;
-                String[] parts = item.split(",");
-                if (parts.length == 4) {
-                    try {
-                        String desc = parts[0].trim();
-                        double price = Double.parseDouble(parts[1].trim());
-                        int qty = Integer.parseInt(parts[2].trim());
-                        double tax = Double.parseDouble(parts[3].trim());
-                        detailsTable.getItems().add(new ReceiptItem(desc, price, qty, tax));
-                        System.out.println("Added detail: " + desc + ", tax=" + tax); // Debug
-                    } catch (NumberFormatException e) {
-                        System.err.println("Error parsing detail: " + item); // Debug error
-                    }
-                }
+        String detailsStr = history.getDetails();
+        if (detailsStr == null || detailsStr.isEmpty()) return;
+
+        String[] rows = detailsStr.split("\\|");
+        for (String row : rows) {
+            if (row.trim().isEmpty()) continue;
+            String[] parts = row.split(",");
+            if (parts.length == 6) {  // New format: taxType,category,tax%,original,tax,penalty
+                try {
+                    String desc = parts[0] + " - " + parts[1]; // e.g., "Salary - Government"
+                    double price = Double.parseDouble(parts[3].trim());
+                    int qty = 1; // Quantity not used, set to 1
+                    double tax = Double.parseDouble(parts[4].trim());
+                    detailsTable.getItems().add(new ReceiptItem(desc, price, qty, tax));
+                } catch (Exception ignored) {}
             }
-        } else {
-            System.out.println("No details available for this payment."); // Debug
         }
     }
+
+    @FXML
+private void handleViewReport(ActionEvent event) {
+    try {
+        List<PaymentHistory> allHistory = new PaymentHistoryDAO().getHistoryByUser(SystemManager.getCurrentUser().getId());
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("ReportView.fxml"));
+        Parent root = loader.load();
+
+        ReportViewController controller = loader.getController();
+        controller.setHistory(allHistory);
+
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(root));
+        stage.setTitle("FBR Tax Portal - Tax Records");
+        stage.centerOnScreen();
+        stage.show();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        showAlert("Error", "Failed to load report.");
+    }
+}
 
     @FXML
     private void handleBack(ActionEvent event) {
@@ -96,9 +118,21 @@ public class TaxHistoryController {
             Parent root = loader.load();
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
-            stage.setTitle("FBR Tax Portal - Dashboard");
+            stage.setTitle("FBR Tax Portal - User Dashboard");
+            stage.centerOnScreen();
+            stage.show();
         } catch (IOException e) {
             e.printStackTrace();
+            showAlert("Error", "Failed to return to dashboard.");
         }
+    }
+
+    // Helper alert method (was missing — this fixes your error)
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

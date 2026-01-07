@@ -4,6 +4,7 @@ import Backend.PaymentHistoryDAO;
 import Backend.SystemManager;
 import Backend.NotificationDAO;
 import Backend.UserDAO;
+import Backend.UserInfo;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -18,7 +19,6 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.List;
 
 public class PaymentTransactionController {
 
@@ -46,48 +46,99 @@ public class PaymentTransactionController {
     }
 
     private void loadReceipt() {
-        List<ReceiptItem> items = SystemManager.getReceiptItems();
         totalTax = SystemManager.getTotalTax();
-        receiptTable.setItems(FXCollections.observableArrayList(items));
+        receiptTable.setItems(FXCollections.observableArrayList(SystemManager.getReceiptItems()));
+
         totalTaxLabel.setText(String.format("Total Tax Amount: %.2f PKR", totalTax));
-        taxPercentageLabel.setText("Tax Percentage: 17%"); // Adjust if dynamic
+        taxPercentageLabel.setText("Tax Percentage: Dynamic"); // Can be improved later
         taxDeductedLabel.setText(String.format("Tax Deducted: %.2f PKR", totalTax));
     }
 
     @FXML
     private void handlePay(ActionEvent event) {
-        int userId = SystemManager.getCurrentUser().getId();
-        StringBuilder details = new StringBuilder();
+        UserInfo currentUser = SystemManager.getCurrentUser();
+        if (currentUser == null) {
+            new Alert(Alert.AlertType.ERROR, "No user logged in.").show();
+            return;
+        }
+
+        int userId = currentUser.getId();
+
+        // Build details in the new 6-field format expected by ReportView
+        // Format: taxType,category,taxPercent,originalPrice,taxAmount,penalty|
+        StringBuilder detailsBuilder = new StringBuilder();
+
         for (ReceiptItem item : receiptTable.getItems()) {
-            details.append(item.getDescription()).append(",")
-                   .append(item.getPrice()).append(",")
-                   .append(item.getQuantity()).append(",")
-                   .append(item.getTax()).append("|");
+            String description = item.getDescription();
+
+            // Extract tax type and category from description (your descriptions contain this info)
+            String taxType = extractTaxType(description);
+            String category = extractCategory(description);
+
+            // Calculate tax percent (avoid division by zero)
+            double taxPercent = item.getPrice() > 0 ? (item.getTax() / item.getPrice()) * 100 : 0.0;
+
+            double originalPrice = item.getPrice();
+            double taxAmount = item.getTax();
+            double penalty = 0.0; // No penalty on payment
+
+            detailsBuilder.append(taxType).append(",")
+                          .append(category).append(",")
+                          .append(String.format("%.2f", taxPercent)).append(",")
+                          .append(String.format("%.2f", originalPrice)).append(",")
+                          .append(String.format("%.2f", taxAmount)).append(",")
+                          .append(String.format("%.2f", penalty)).append("|");
         }
-        boolean success = dao.insertPayment(userId, totalTax, details.toString());
+
+        String details = detailsBuilder.toString();
+
+        boolean success = dao.insertPayment(userId, totalTax, details);
+
         if (success) {
-            // Update status to Paid
+            // Update taxpayer status
             UserDAO.updateTaxStatus(userId, "Paid");
+            UserDAO.updatePaymentDate(userId, Date.valueOf(LocalDate.now()));
 
-            // Update payment date
-            Date sqlDate = Date.valueOf(LocalDate.now());
-            UserDAO.updatePaymentDate(userId, sqlDate);
+            // Send official confirmation notification
+            String message = "Dear " + currentUser.getName() + ",\n\n" +
+                    "Your tax payment of PKR " + String.format("%.2f", totalTax) +
+                    " has been successfully received on " + LocalDate.now() + ".\n\n" +
+                    "Thank you for fulfilling your tax obligations.\n" +
+                    "Your taxpayer status is now 'Paid'.\n\n" +
+                    "For queries: FBR Helpline 111-772-772\n\n" +
+                    "Federal Board of Revenue\nGovernment of Pakistan";
 
-            // Send payment confirmation notification (real, official)
-            String msg = "Dear " + SystemManager.getCurrentUser().getName() + ",\n\n" +
-                         "This is to confirm that your tax payment of " + String.format("%.2f", totalTax) + " PKR has been successfully recorded on " + LocalDate.now() + ".\n\n" +
-                         "Thank you for your compliance with FBR regulations.\n\n" +
-                         "Your status has been updated to Paid. For any queries, contact FBR Helpline at 111-772-772.\n\n" +
-                         "Regards,\n" +
-                         "Federal Board of Revenue (FBR)\n" +
-                         "Government of Pakistan";
-            NotificationDAO.addNotification(userId, "Tax Payment Confirmation", msg, "PAYMENT");
+            NotificationDAO.addNotification(userId, "Payment Confirmation", message, "PAYMENT");
 
-            new Alert(Alert.AlertType.INFORMATION, String.format("Payment of %.2f PKR successful! Recorded in history.", totalTax)).show();
-            SystemManager.clearReceipt();
+            new Alert(Alert.AlertType.INFORMATION,
+                    String.format("Payment of %.2f PKR successful! Recorded in history.", totalTax)).showAndWait();
+
+            SystemManager.clearReceipt(); // Clear session data
+            loadReceipt(); // Refresh table (now empty)
         } else {
-            new Alert(Alert.AlertType.ERROR, "Payment failed to record. Try again.").show();
+            new Alert(Alert.AlertType.ERROR, "Payment failed to record. Please try again.").showAndWait();
         }
+    }
+
+    // Helper to extract tax type (Salary, Property, Vehicle, GST)
+    private String extractTaxType(String desc) {
+        if (desc.toLowerCase().contains("salary")) return "Salary";
+        if (desc.toLowerCase().contains("property")) return "Property";
+        if (desc.toLowerCase().contains("vehicle")) return "Vehicle";
+        if (desc.toLowerCase().contains("gst")) return "GST";
+        return "Other";
+    }
+
+    // Helper to extract subcategory
+    private String extractCategory(String desc) {
+        if (desc.contains("Government")) return "Government";
+        if (desc.contains("Private")) return "Private Company";
+        if (desc.contains("Business")) return "Business";
+        if (desc.contains("Residential")) return "Residential";
+        if (desc.contains("Commercial")) return "Commercial";
+        if (desc.contains("Below 1000cc")) return "Below 1000cc";
+        if (desc.contains("Above 1000cc")) return "Above 1000cc";
+        return desc; // fallback
     }
 
     @FXML
@@ -98,8 +149,11 @@ public class PaymentTransactionController {
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
             stage.setTitle("FBR Tax Portal - Dashboard");
+            stage.centerOnScreen();
+            stage.show();
         } catch (IOException e) {
             e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Failed to return to dashboard.").show();
         }
     }
 }

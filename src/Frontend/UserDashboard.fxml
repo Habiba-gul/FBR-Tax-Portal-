@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.shape.Circle?>
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21" 
-            xmlns:fx="http://javafx.com/fxml/1" 
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="Frontend.UserDashboardController"
             style="-fx-background-color: #b8b2d8ff;">
 
@@ -23,7 +24,6 @@
               spacing="12"
               prefHeight="60"
               style="-fx-background-color: #004e92; -fx-padding: 10;">
-
             <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
                 <image>
                     <Image url="@fbrLogo.png"/>
@@ -32,15 +32,12 @@
                     <Circle radius="20" centerX="20" centerY="20"/>
                 </clip>
             </ImageView>
-
             <Label text="Tax Portal" textFill="WHITE">
                 <font>
                     <Font size="20"/>
                 </font>
             </Label>
-
             <HBox HBox.hgrow="ALWAYS"/>
-
             <Button text="Logout"
                     onAction="#handleLogout"
                     style="-fx-background-color: #FFC107;
@@ -60,14 +57,13 @@
             <VBox.margin>
                 <Insets top="50.0" bottom="50.0" />
             </VBox.margin>
-
             <Label text="User Dashboard" textFill="#004e92">
                 <font>
                     <Font name="Arial Bold" size="28.0" />
                 </font>
             </Label>
-            
-            <GridPane alignment="CENTER" hgap="40.0" vgap="40.0" 
+           
+            <GridPane alignment="CENTER" hgap="40.0" vgap="40.0"
                       style="-fx-background-color: #0f5c9eff; -fx-padding: 50; -fx-background-radius: 10;">
                 <columnConstraints>
                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="250.0" />
@@ -81,7 +77,7 @@
                 </rowConstraints>
 
                 <!-- Row 0 -->
-                <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" 
+                <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;"
                       onMouseClicked="#handleUserInfo" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="0">
                     <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
                         <image><Image url="@user-info.png" /></image>
@@ -91,7 +87,7 @@
                     </Label>
                 </VBox>
 
-                <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" 
+                <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;"
                       onMouseClicked="#handleCurrentTaxRecords" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="0">
                     <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
                         <image><Image url="@tax-records.png" /></image>
@@ -102,8 +98,8 @@
                 </VBox>
 
                 <!-- Row 1 -->
-                <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" 
-                      onMouseClicked="#handleTaxCalculationServices" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;"
+                      onMouseClicked="#handleTaxCalculation" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="1">
                     <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
                         <image><Image url="@calculator.png" /></image>
                     </ImageView>
@@ -112,8 +108,8 @@
                     </Label>
                 </VBox>
 
-                <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" 
-                      onMouseClicked="#handlePaymentTransactions" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;"
+                      onMouseClicked="#handlePaymentTransaction" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
                     <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
                         <image><Image url="@payment.png" /></image>
                     </ImageView>
@@ -123,8 +119,8 @@
                 </VBox>
 
                 <!-- Row 2 -->
-                <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" 
-                      onMouseClicked="#handleTaxReports" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;"
+                      onMouseClicked="#handleTaxHistory" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="2">
                     <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
                         <image><Image url="@history.png" /></image>
                     </ImageView>
@@ -133,7 +129,7 @@
                     </Label>
                 </VBox>
 
-                <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" 
+                <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;"
                       onMouseClicked="#handleAlerts" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2">
                     <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
                         <image><Image url="@alerts.png" /></image>
@@ -144,7 +140,7 @@
                 </VBox>
 
                 <!-- Row 3 -->
-                <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" 
+                <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;"
                       onMouseClicked="#handleReportReadyData" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="3">
                     <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
                         <image><Image url="@report.png" /></image>
@@ -154,7 +150,7 @@
                     </Label>
                 </VBox>
 
-                <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;" 
+                <VBox style="-fx-background-color: #0f5c9eff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 20;"
                       onMouseClicked="#handleLogout" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="3">
                     <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
                         <image><Image url="@logout.png" /></image>
@@ -163,7 +159,6 @@
                         <VBox.margin><Insets top="10.0" /></VBox.margin>
                     </Label>
                 </VBox>
-
             </GridPane>
         </VBox>
     </center>

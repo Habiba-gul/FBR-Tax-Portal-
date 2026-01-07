@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Frontend.TaxHistoryController" spacing="15" alignment="TOP_CENTER"
       style="-fx-padding: 20; -fx-background-color: #f4f6f9;">
 
@@ -26,6 +27,9 @@
             <TableColumn fx:id="taxDetailCol" text="Tax (PKR)" prefWidth="100"/>
         </columns>
     </TableView>
+
+    <Button fx:id="viewReportBtn" text="View Selected Report" onAction="#handleViewReport" 
+            style="-fx-background-color: #4e54c8; -fx-text-fill: white;"/>
 
     <Button text="Back to Dashboard" onAction="#handleBack" style="-fx-background-color: #6c757d; -fx-text-fill: white;"/>
 </VBox>

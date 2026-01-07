@@ -5,10 +5,13 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>  
 
-<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Frontend.NotificationsController"
-      spacing="10" style="-fx-padding:20;">
+      spacing="10"
+      style="-fx-padding:20;">
 
     <TableView fx:id="notificationTable" prefHeight="500" prefWidth="750">
         <columns>
@@ -17,16 +20,19 @@
                     <PropertyValueFactory property="title" />
                 </cellValueFactory>
             </TableColumn>
+
             <TableColumn fx:id="messageColumn" text="Message" prefWidth="500">
                 <cellValueFactory>
                     <PropertyValueFactory property="message" />
                 </cellValueFactory>
             </TableColumn>
+
             <TableColumn fx:id="typeColumn" text="Type" prefWidth="100">
                 <cellValueFactory>
                     <PropertyValueFactory property="type" />
                 </cellValueFactory>
             </TableColumn>
+
             <TableColumn fx:id="dateColumn" text="Date" prefWidth="150">
                 <cellValueFactory>
                     <PropertyValueFactory property="createdAt" />
@@ -35,7 +41,14 @@
         </columns>
     </TableView>
 
-    <Button text="Refresh Notifications" onAction="#handleRefresh" 
-            style="-fx-background-color: #4e54c8; -fx-text-fill: white; -fx-font-size: 14;"/>
+    <HBox spacing="20" alignment="CENTER">
+        <Button text="Refresh Notifications"
+                onAction="#handleRefresh"
+                style="-fx-background-color: #4e54c8; -fx-text-fill: white; -fx-font-size: 14;"/>
+
+        <Button text="Back to Dashboard"
+                onAction="#handleBackToDashboard"
+                style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-size: 14;"/>
+    </HBox>
 
 </VBox>
