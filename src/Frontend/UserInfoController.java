@@ -64,24 +64,16 @@ public class UserInfoController {
 
     @FXML
     private void handleBackToDashboard(ActionEvent event) {
-        try {
-            // Loading the Dashboard view
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("UserDashboard.fxml"));
-            Parent root = loader.load();
-
-            // Getting the current window (Stage) to switch scenes
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            
-            // Standard dashboard size
-            Scene scene = new Scene(root, 800, 600); 
-            
-            stage.setScene(scene);
-            stage.setTitle("FBR Tax Application - Dashboard");
-            stage.show();
-            
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println("Failed to load UserDashboard.fxml");
-        }
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("UserDashboard.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(root, 800, 600));
+        stage.setTitle("FBR Tax Portal - User Dashboard");
+        stage.centerOnScreen();
+        stage.show();
+    } catch (IOException e) {
+        e.printStackTrace();
     }
+}
 }

@@ -9,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.stage.Stage;
@@ -48,42 +49,44 @@ public class ReportViewController {
 
     private void openDetailView(String selectedDateStr) {
         PaymentHistory selected = allHistory.stream()
-                .filter(ph -> ph.getPaymentDate().format(formatter).equals(selectedDateStr))
-                .findFirst()
-                .orElse(null);
+        .filter(ph -> ph.getPaymentDate().format(formatter).equals(selectedDateStr))
+        .findFirst()
+        .orElse(null);
 
-        if (selected == null) return;
+    if (selected == null) return;
 
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("ReportDetail.fxml"));
-            Parent root = loader.load();
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("ReportDetail.fxml"));
+        Parent root = loader.load();
 
-            ReportDetailController controller = loader.getController();
-            controller.setPayment(selected);
+        ReportDetailController controller = loader.getController();
+        controller.setPayment(selected);
 
-            Stage detailStage = new Stage();
-            detailStage.setTitle("FBR Tax Portal - Payment Details");
-            detailStage.setScene(new Scene(root, 900, 700));
-            detailStage.centerOnScreen();
-            detailStage.show();
+        Scene detailScene = new Scene(root, 1000, 700);  // Fixed size for popup
+        Stage detailStage = new Stage();
+        detailStage.setScene(detailScene);
+        detailStage.setTitle("FBR Tax Portal - Payment Details");
+        detailStage.setResizable(true);  // Allow resize + full controls
+        detailStage.centerOnScreen();
+        detailStage.show();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    } catch (IOException e) {
+        e.printStackTrace();
     }
+}
 
     @FXML
     private void handleBackToDashboard(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("UserDashboard.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, 800, 600));
-            stage.setTitle("FBR Tax Portal - User Dashboard");
-            stage.centerOnScreen();
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("UserDashboard.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(root, 800, 600));
+        stage.setTitle("FBR Tax Portal - User Dashboard");
+        stage.centerOnScreen();
+        stage.show();
+    } catch (IOException e) {
+        e.printStackTrace();
     }
+}
 }

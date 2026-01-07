@@ -50,7 +50,7 @@ public class PaymentTransactionController {
         receiptTable.setItems(FXCollections.observableArrayList(SystemManager.getReceiptItems()));
 
         totalTaxLabel.setText(String.format("Total Tax Amount: %.2f PKR", totalTax));
-        taxPercentageLabel.setText("Tax Percentage: Dynamic"); // Can be improved later
+        taxPercentageLabel.setText("Tax Percentage: Dynamic");
         taxDeductedLabel.setText(String.format("Tax Deducted: %.2f PKR", totalTax));
     }
 
@@ -58,29 +58,25 @@ public class PaymentTransactionController {
     private void handlePay(ActionEvent event) {
         UserInfo currentUser = SystemManager.getCurrentUser();
         if (currentUser == null) {
-            new Alert(Alert.AlertType.ERROR, "No user logged in.").show();
+            new Alert(Alert.AlertType.ERROR, "No user logged in. Please login again.").showAndWait();
             return;
         }
 
         int userId = currentUser.getId();
 
-        // Build details in the new 6-field format expected by ReportView
-        // Format: taxType,category,taxPercent,originalPrice,taxAmount,penalty|
         StringBuilder detailsBuilder = new StringBuilder();
 
         for (ReceiptItem item : receiptTable.getItems()) {
             String description = item.getDescription();
 
-            // Extract tax type and category from description (your descriptions contain this info)
             String taxType = extractTaxType(description);
             String category = extractCategory(description);
 
-            // Calculate tax percent (avoid division by zero)
             double taxPercent = item.getPrice() > 0 ? (item.getTax() / item.getPrice()) * 100 : 0.0;
 
             double originalPrice = item.getPrice();
             double taxAmount = item.getTax();
-            double penalty = 0.0; // No penalty on payment
+            double penalty = 0.0;
 
             detailsBuilder.append(taxType).append(",")
                           .append(category).append(",")
@@ -95,11 +91,9 @@ public class PaymentTransactionController {
         boolean success = dao.insertPayment(userId, totalTax, details);
 
         if (success) {
-            // Update taxpayer status
             UserDAO.updateTaxStatus(userId, "Paid");
             UserDAO.updatePaymentDate(userId, Date.valueOf(LocalDate.now()));
 
-            // Send official confirmation notification
             String message = "Dear " + currentUser.getName() + ",\n\n" +
                     "Your tax payment of PKR " + String.format("%.2f", totalTax) +
                     " has been successfully received on " + LocalDate.now() + ".\n\n" +
@@ -113,23 +107,22 @@ public class PaymentTransactionController {
             new Alert(Alert.AlertType.INFORMATION,
                     String.format("Payment of %.2f PKR successful! Recorded in history.", totalTax)).showAndWait();
 
-            SystemManager.clearReceipt(); // Clear session data
-            loadReceipt(); // Refresh table (now empty)
+            SystemManager.clearReceipt();
+            loadReceipt(); // Clear table
         } else {
             new Alert(Alert.AlertType.ERROR, "Payment failed to record. Please try again.").showAndWait();
         }
     }
 
-    // Helper to extract tax type (Salary, Property, Vehicle, GST)
     private String extractTaxType(String desc) {
-        if (desc.toLowerCase().contains("salary")) return "Salary";
-        if (desc.toLowerCase().contains("property")) return "Property";
-        if (desc.toLowerCase().contains("vehicle")) return "Vehicle";
-        if (desc.toLowerCase().contains("gst")) return "GST";
+        String lower = desc.toLowerCase();
+        if (lower.contains("salary")) return "Salary";
+        if (lower.contains("property")) return "Property";
+        if (lower.contains("vehicle")) return "Vehicle";
+        if (lower.contains("gst")) return "GST";
         return "Other";
     }
 
-    // Helper to extract subcategory
     private String extractCategory(String desc) {
         if (desc.contains("Government")) return "Government";
         if (desc.contains("Private")) return "Private Company";
@@ -138,7 +131,7 @@ public class PaymentTransactionController {
         if (desc.contains("Commercial")) return "Commercial";
         if (desc.contains("Below 1000cc")) return "Below 1000cc";
         if (desc.contains("Above 1000cc")) return "Above 1000cc";
-        return desc; // fallback
+        return desc;
     }
 
     @FXML
@@ -147,13 +140,13 @@ public class PaymentTransactionController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("UserDashboard.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, 800, 600));
-            stage.setTitle("FBR Tax Portal - Dashboard");
+            Scene scene = new Scene(root, 800, 600);
+            stage.setScene(scene);
+            stage.setTitle("FBR Tax Portal - User Dashboard");
             stage.centerOnScreen();
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "Failed to return to dashboard.").show();
         }
     }
 }

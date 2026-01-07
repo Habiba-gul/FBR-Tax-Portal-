@@ -26,33 +26,46 @@ public class LoginController {
 
     @FXML
     private void handleLogin(ActionEvent event) {
-        String cnic = usernameField.getText().trim();
-        String password = passwordField.getText().trim();
+    String cnic = usernameField.getText().trim();
+    String password = passwordField.getText().trim();
 
-        if (cnic.isEmpty() || password.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Empty Fields", "Please enter CNIC and Password.");
-            return;
-        }
-
-        String role = loginService.validateLogin(cnic, password);
-
-        if ("USER".equals(role)) {
-            // Load full user details from database
-            UserInfo currentUser = UserDAO.getUserByCNIC(cnic);
-            if (currentUser != null) {
-                SystemManager.setCurrentUser(currentUser);  // Critical: Makes CNIC show in User Info
-            }
-
-            navigateTo(event, "UserDashboard.fxml", "FBR Taxpayer Portal");
-
-        } else if ("ADMIN".equals(role)) {
-            // For admin (you can load admin details if needed later)
-            navigateTo(event, "AdminDashboard.fxml", "FBR Admin Portal");
-
-        } else {
-            showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid CNIC or Password.");
-        }
+    if (cnic.isEmpty() || password.isEmpty()) {
+        showAlert(Alert.AlertType.WARNING, "Empty Fields", "Please enter CNIC and Password.");
+        return;
     }
+
+    String role = loginService.validateLogin(cnic, password);
+
+    if (role != null) {
+        // Fetch full user info and set in SystemManager
+        UserInfo user = UserDAO.getUserByCNIC(cnic);
+        if (user != null) {
+            user.setRole(role);  // Ensure role is set
+            SystemManager.setCurrentUser(user);  // <-- THIS IS THE KEY FIX
+        }
+
+        String dashboardFxml = "USER".equals(role) ? "UserDashboard.fxml" : "AdminDashboard.fxml";
+        String title = "USER".equals(role) ? "FBR Tax Portal - User Dashboard" : "FBR Tax Portal - Admin Dashboard";
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(dashboardFxml));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root, 800, 600);
+            stage.setScene(scene);
+            stage.setTitle(title);
+            stage.centerOnScreen();
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to load dashboard.");
+        }
+    } else {
+        showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid CNIC or Password.");
+    }
+}
 
     @FXML
     private void handleRegister(ActionEvent event) {

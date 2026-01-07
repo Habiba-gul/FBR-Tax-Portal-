@@ -98,16 +98,16 @@ public class VehicleTaxSettingsController {
 
     @FXML
     private void handleBack(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("TaxRateSettings.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("FBR Tax Portal - Tax Rate Settings");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("TaxRateSettings.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(root, 800, 600));
+        stage.setTitle("FBR Tax Portal - Tax Rate Settings");
+    } catch (IOException e) {
+        e.printStackTrace();
     }
+}
 
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);

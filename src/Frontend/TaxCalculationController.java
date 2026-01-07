@@ -143,14 +143,14 @@ public class TaxCalculationController {
 
     @FXML
     private void handleBack(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("UserDashboard.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, 800, 600));
-            stage.setTitle("FBR Tax Portal - Dashboard");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("UserDashboard.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(root, 800, 600));
+        stage.setTitle("FBR Tax Portal - Dashboard");
+    } catch (IOException e) {
+        e.printStackTrace();
     }
+}
 }

@@ -1,6 +1,5 @@
 package Frontend;
 
-import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -13,38 +12,29 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        FXMLLoader splashLoader = new FXMLLoader(getClass().getResource("Splash.fxml"));
+        Parent splashRoot = splashLoader.load();
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("Splash.fxml"));
-        Parent splashRoot = loader.load();
-
-        Scene splashScene = new Scene(splashRoot, 800, 600); // fixed window size for splash
+        Scene splashScene = new Scene(splashRoot, 800, 600);
         primaryStage.setScene(splashScene);
         primaryStage.setTitle("FBR Tax Portal");
-        primaryStage.setResizable(false);
+        primaryStage.centerOnScreen();
         primaryStage.show();
 
-        FadeTransition fadeIn = new FadeTransition(Duration.seconds(1.5), splashRoot);
-        fadeIn.setFromValue(0);
-        fadeIn.setToValue(1);
-        fadeIn.play();
-
-        PauseTransition wait = new PauseTransition(Duration.seconds(5)); // 5 seconds
-        wait.setOnFinished(event -> {
+        PauseTransition delay = new PauseTransition(Duration.seconds(5));
+        delay.setOnFinished(event -> {
             try {
                 FXMLLoader loginLoader = new FXMLLoader(getClass().getResource("login.fxml"));
                 Parent loginRoot = loginLoader.load();
-                Scene loginScene = new Scene(loginRoot);
-
+                Scene loginScene = new Scene(loginRoot, 800, 600);
                 primaryStage.setScene(loginScene);
                 primaryStage.setTitle("FBR Tax Portal - Login");
-                primaryStage.setMaximized(true);
-                primaryStage.setResizable(true);
                 primaryStage.centerOnScreen();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
-        wait.play();
+        delay.play();
     }
 
     public static void main(String[] args) {

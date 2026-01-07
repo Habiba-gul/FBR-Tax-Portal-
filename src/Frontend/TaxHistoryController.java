@@ -3,6 +3,7 @@ package Frontend;
 import Backend.PaymentHistory;
 import Backend.PaymentHistoryDAO;
 import Backend.SystemManager;
+import Backend.UserInfo;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -47,7 +48,12 @@ public class TaxHistoryController {
         qtyDetailCol.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         taxDetailCol.setCellValueFactory(new PropertyValueFactory<>("tax"));
 
-        loadHistory();
+        // Load history when scene is ready
+        historyTable.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                loadHistory();
+            }
+        });
 
         historyTable.getSelectionModel().selectedItemProperty().addListener((obs, old, newVal) -> {
             viewReportBtn.setDisable(newVal == null);
@@ -62,7 +68,25 @@ public class TaxHistoryController {
     }
 
     private void loadHistory() {
-        int userId = SystemManager.getCurrentUser().getId();
+        UserInfo currentUser = SystemManager.getCurrentUser();
+        if (currentUser == null) {
+            showAlert("Session Error", "No user logged in. Redirecting to login...");
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
+                Parent root = loader.load();
+                Scene scene = new Scene(root, 800, 600);
+                Stage stage = (Stage) historyTable.getScene().getWindow();
+                stage.setScene(scene);
+                stage.setTitle("FBR Tax Portal - Login");
+                stage.centerOnScreen();
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
+
+        int userId = currentUser.getId();
         List<PaymentHistory> history = dao.getHistoryByUser(userId);
         historyTable.setItems(FXCollections.observableArrayList(history));
     }
@@ -76,12 +100,12 @@ public class TaxHistoryController {
         for (String row : rows) {
             if (row.trim().isEmpty()) continue;
             String[] parts = row.split(",");
-            if (parts.length == 6) {  // New format: taxType,category,tax%,original,tax,penalty
+            if (parts.length >= 4) {  // Compatible with old/new format
                 try {
-                    String desc = parts[0] + " - " + parts[1]; // e.g., "Salary - Government"
-                    double price = Double.parseDouble(parts[3].trim());
-                    int qty = 1; // Quantity not used, set to 1
-                    double tax = Double.parseDouble(parts[4].trim());
+                    String desc = parts.length >= 6 ? parts[0] + " - " + parts[1] : parts[0];
+                    double price = parts.length >= 6 ? Double.parseDouble(parts[3]) : Double.parseDouble(parts[1]);
+                    int qty = 1;
+                    double tax = parts.length >= 6 ? Double.parseDouble(parts[4]) : Double.parseDouble(parts[3]);
                     detailsTable.getItems().add(new ReceiptItem(desc, price, qty, tax));
                 } catch (Exception ignored) {}
             }
@@ -89,27 +113,26 @@ public class TaxHistoryController {
     }
 
     @FXML
-private void handleViewReport(ActionEvent event) {
-    try {
-        List<PaymentHistory> allHistory = new PaymentHistoryDAO().getHistoryByUser(SystemManager.getCurrentUser().getId());
+    private void handleViewReport(ActionEvent event) {
+        try {
+            List<PaymentHistory> allHistory = dao.getHistoryByUser(SystemManager.getCurrentUser().getId());
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("ReportView.fxml"));
-        Parent root = loader.load();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("ReportView.fxml"));
+            Parent root = loader.load();
 
-        ReportViewController controller = loader.getController();
-        controller.setHistory(allHistory);
+            ReportViewController controller = loader.getController();
+            controller.setHistory(allHistory);
 
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root));
-        stage.setTitle("FBR Tax Portal - Tax Records");
-        stage.centerOnScreen();
-        stage.show();
-
-    } catch (Exception e) {
-        e.printStackTrace();
-        showAlert("Error", "Failed to load report.");
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 800, 600));
+            stage.setTitle("FBR Tax Portal - Tax Records");
+            stage.centerOnScreen();
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load report.");
+        }
     }
-}
 
     @FXML
     private void handleBack(ActionEvent event) {
@@ -123,11 +146,10 @@ private void handleViewReport(ActionEvent event) {
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert("Error", "Failed to return to dashboard.");
+            new Alert(Alert.AlertType.ERROR, "Failed to return to dashboard.").show();
         }
     }
 
-    // Helper alert method (was missing — this fixes your error)
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);

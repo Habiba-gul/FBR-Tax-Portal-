@@ -38,17 +38,6 @@
                 </font>
             </Label>
             <HBox HBox.hgrow="ALWAYS"/>
-            <Button text="Logout"
-                    onAction="#handleLogout"
-                    style="-fx-background-color: #FFC107;
-                           -fx-text-fill: #004e92;
-                           -fx-font-weight: bold;
-                           -fx-background-radius: 6;
-                           -fx-cursor: hand;">
-                <padding>
-                    <Insets left="15" right="15"/>
-                </padding>
-            </Button>
         </HBox>
     </top>
 

@@ -76,18 +76,18 @@ public class NotificationsController {
 
     // NEW: Back to Dashboard
     @FXML
-    private void handleBackToDashboard(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("UserDashboard.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("FBR Tax Portal - User Dashboard");
-            stage.centerOnScreen();
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "Failed to return to dashboard.").show();
-        }
+private void handleBackToDashboard(ActionEvent event) {
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("UserDashboard.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(root, 800, 600));
+        stage.setTitle("FBR Tax Portal - User Dashboard");
+        stage.centerOnScreen();
+        stage.show();
+    } catch (IOException e) {
+        e.printStackTrace();
+        new Alert(Alert.AlertType.ERROR, "Failed to return to dashboard.").show();
     }
+}
 }
