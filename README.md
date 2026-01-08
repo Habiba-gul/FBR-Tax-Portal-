@@ -168,3 +168,12 @@ The UML Class Diagram represents:
   <li>Advanced reporting and analytics</li>
   <li>Mobile application version</li>
 </ul>
+<hr>
+
+<h2>Project Contributors</h2>
+<p>This project was collaboratively developed by:</p>
+<ul>
+  <li><strong>Wasif Ali Khan</strong></li>
+  <li><strong>Habiba Gul</strong></li>
+</ul>
+
