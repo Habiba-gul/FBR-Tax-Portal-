@@ -102,25 +102,25 @@ All credentials (CNIC, password, and role) are securely stored in the MySQL data
 
 <h2>User Dashboard</h2>
 <p>After user login, the User Dashboard appears.</p>
-<img src="img/User Dahboard.png" width="700">
+<img src="img/User Dashboard.png" width="700">
 
 <h3>User Dashboard Features</h3>
 
 <h4>1- User Info</h4>
 <p>View and update personal information.</p>
-<img src="img/User info.png" width="650">
+<img src="img/User Info.png" width="650">
 
 <h4>2- Tax Rates (Read-Only)</h4>
 <p>View tax ranges and categories managed by admin.</p>
-<img src="img/User taxrates.png" width="650">
-<img src="img/User taxrates2.png" width="650">
+<img src="img/user taxrates.png" width="650">
+<img src="img/user taxrates2.png" width="650">
 
 <h4>3- Tax Calculation</h4>
 <p>
 Select tax type, enter income/value, and the system calculates tax automatically
 and sends it to the payment module.
 </p>
-<img src="img/tacCalculation.png" width="650">
+<img src="img/TacCalculation.png" width="650">
 
 <h4>4- Payment & Transactions</h4>
 <p>View payable tax amount and click Pay Now to complete payment.</p>
@@ -132,7 +132,7 @@ and sends it to the payment module.
 
 <h4>6- Alerts & Notifications</h4>
 <p>Receive tax reminders and admin notifications.</p>
-<img src="img/Notifications.png" width="650">
+<img src="img/Notification.png" width="650">
 
 <h4>7- Report Ready Data</h4>
 <p>
