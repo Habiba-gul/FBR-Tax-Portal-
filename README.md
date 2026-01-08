@@ -113,7 +113,7 @@ All credentials (CNIC, password, and role) are securely stored in the MySQL data
 <h4>2- Tax Rates (Read-Only)</h4>
 <p>View tax ranges and categories managed by admin.</p>
 <img src="img/user taxrates.png" width="650">
-<img src="img/user taxrates2.png" width="650">
+<img src="img/user taxrates 2.png" width="650">
 
 <h4>3- Tax Calculation</h4>
 <p>
@@ -124,7 +124,7 @@ and sends it to the payment module.
 
 <h4>4- Payment & Transactions</h4>
 <p>View payable tax amount and click Pay Now to complete payment.</p>
-<img src="img/payemnt and transaction.png" width="650">
+<img src="img/payment and transaction.png" width="650">
 
 <h4>5- History & Records</h4>
 <p>View complete history of paid taxes.</p>
